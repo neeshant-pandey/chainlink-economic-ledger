@@ -1,0 +1,18 @@
+{
+  "_comment": "Synthetic reorg fixture for tests/integration/test_reorg_conflict. The implementer fills in realistic values; a 1-block reorg with a single replaced block is sufficient.",
+  "shadow_ingestion": {
+    "block_number": 0,
+    "block_hash": "0xAAAAAA",
+    "parent_hash": "0x..."
+  },
+  "post_finalization": {
+    "block_number": 0,
+    "block_hash": "0xBBBBBB",
+    "parent_hash": "0x..."
+  },
+  "expected_reorg_event": {
+    "block_number": 0,
+    "old_block_hash": "0xAAAAAA",
+    "new_block_hash": "0xBBBBBB"
+  }
+}

@@ -1,0 +1,77 @@
+version: 2
+
+models:
+  - name: int_economic_actions
+    description: "Per-action records produced by Python protocol semantics."
+    columns:
+      - name: action_id
+        tests:
+          - not_null
+          - unique
+      - name: kind
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - stake
+                - unstake_requested
+                - unstake_finalized
+                - reward_claimed
+                - reward_accrued
+                - slashed
+                - migrated_from_v01
+                - pool_config_changed
+
+  - name: int_token_movements
+    columns:
+      - name: movement_id
+        tests:
+          - not_null
+          - unique
+      - name: source_priority
+        tests:
+          - accepted_values:
+              values: [log, trace]
+
+  - name: int_action_movement_recon
+    description: "Tx-level reconciliation aggregates."
+    columns:
+      - name: tx_hash
+        tests:
+          - not_null
+          - unique
+      - name: overall_status
+        tests:
+          - accepted_values:
+              values: [ok, warn, fail]
+
+  - name: int_pool_balance_deltas
+    columns:
+      - name: pool_address
+        tests: [not_null]
+      - name: block_number
+        tests: [not_null]
+
+  - name: int_decode_failures
+    columns:
+      - name: raw_id
+        tests:
+          - not_null
+          - unique
+      - name: failure_reason
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - unknown_topic
+                - abi_mismatch
+                - malformed_data
+                - unregistered_contract
+                - phase_not_found
+
+  - name: int_unknown_signatures
+    columns:
+      - name: contract_address
+        tests: [not_null]
+      - name: topic0
+        tests: [not_null]

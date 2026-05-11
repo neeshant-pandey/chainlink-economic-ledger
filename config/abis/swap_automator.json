@@ -1,0 +1,21 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "name": "sourceToken", "type": "address"},
+      {"indexed": true, "name": "outputToken", "type": "address"},
+      {"indexed": false, "name": "sourceAmount", "type": "uint256"},
+      {"indexed": false, "name": "outputAmount", "type": "uint256"}
+    ],
+    "name": "SwapExecuted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": false, "name": "newConfig", "type": "bytes"}
+    ],
+    "name": "ConfigSet",
+    "type": "event"
+  }
+]

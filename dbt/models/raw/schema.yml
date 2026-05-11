@@ -1,0 +1,69 @@
+version: 2
+
+models:
+  - name: raw_blocks
+    description: "Block headers (canonical AND shadow tip). Reorg promotion handled in Python."
+    columns:
+      - name: chain_id
+        tests: [not_null]
+      - name: block_number
+        tests: [not_null]
+      - name: block_hash
+        tests: [not_null]
+      - name: parent_hash
+        tests: [not_null]
+      - name: timestamp
+        tests: [not_null]
+      - name: run_partition_id
+        description: "Lineage only — NOT part of unique key."
+        tests: [not_null]
+
+  - name: raw_transactions
+    columns:
+      - name: tx_hash
+        tests: [not_null]
+      - name: block_number
+        tests: [not_null]
+      - name: tx_index
+        tests: [not_null]
+
+  - name: raw_receipts
+    columns:
+      - name: tx_hash
+        tests: [not_null]
+      - name: status
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+
+  - name: raw_logs
+    columns:
+      - name: chain_id
+        tests: [not_null]
+      - name: block_number
+        tests: [not_null]
+      - name: tx_hash
+        tests: [not_null]
+      - name: log_index
+        tests: [not_null]
+      - name: address
+        tests: [not_null]
+
+  - name: raw_traces
+    columns:
+      - name: tx_hash
+        tests: [not_null]
+      - name: trace_address
+        description: "Path of indices from root call to this node."
+
+  - name: raw_balance_snapshots
+    columns:
+      - name: token_address
+        tests: [not_null]
+      - name: holder_address
+        tests: [not_null]
+      - name: block_number
+        tests: [not_null]
+      - name: balance
+        tests: [not_null]

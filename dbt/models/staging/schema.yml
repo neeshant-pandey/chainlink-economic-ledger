@@ -1,0 +1,71 @@
+version: 2
+
+models:
+  - name: stg_canonical_blocks
+    description: "Finalized blocks only. Reorg-promoted in Python."
+    columns:
+      - name: block_number
+        tests:
+          - not_null
+          - unique
+      - name: block_hash
+        tests: [not_null]
+
+  - name: stg_shadow_tip_blocks
+    description: "Recent non-finalized blocks (visibility-only)."
+
+  - name: stg_staking_events
+    description: "Decoded staking v0.2 events from canonical blocks."
+    columns:
+      - name: decoded_event_id
+        tests:
+          - not_null
+          - unique
+      - name: raw_log_id
+        tests: [not_null]
+      - name: contract_address
+        tests: [not_null]
+      - name: event_name
+        tests: [not_null]
+
+  - name: stg_link_transfers
+    description: "LINK ERC-20 Transfer events filtered to staking-relevant addresses."
+    columns:
+      - name: decoded_event_id
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_staking_calls
+    description: "Top-level decoded calldata for staking entry-point methods."
+
+  - name: stg_decoded_trace_calls
+    description: "All decoded internal calls. Reverted calls included for visibility but flagged."
+    columns:
+      - name: raw_trace_call_id
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_balance_snapshots
+    description: "Pool/wallet LINK balance at specific block heights."
+
+  - name: stg_action_movement_edges
+    description: "N:M reconciliation edges. Python-authored."
+    columns:
+      - name: edge_id
+        tests:
+          - not_null
+          - unique
+      - name: status
+        tests:
+          - not_null
+          - accepted_values:
+              values: [exact, partial, unmatched, not_expected, unexpected, ambiguous]
+      - name: method
+        tests:
+          - accepted_values:
+              values: [event_log, trace, balance_inferred, manual_rule]
+              quote: true
+              config:
+                where: "status != 'not_expected'"

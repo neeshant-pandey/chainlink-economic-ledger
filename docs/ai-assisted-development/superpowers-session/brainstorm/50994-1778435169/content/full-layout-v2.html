@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chainlink Ledger — Layout Preview</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; min-height: 100vh; }
+  body {
+    font-family: 'Charter', 'Georgia', serif;
+    background: #faf7f2;
+    color: #1a1a1a;
+    overflow-x: hidden;
+  }
+
+  /* === TOP STRIP (instructions) === */
+  .top-strip {
+    background: #1a1a1a;
+    color: #faf7f2;
+    padding: 16px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: -apple-system, 'Inter', sans-serif;
+    font-size: 14px;
+  }
+  .top-strip .question { font-weight: 600; }
+  .top-strip .approve-btn {
+    background: #f59e0b;
+    color: #1a1a1a;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.15s;
+  }
+  .top-strip .approve-btn:hover { background: #fbbf24; transform: translateY(-1px); }
+  .top-strip .approve-btn.approved { background: #10b981; color: white; }
+  .top-strip .reject-btn {
+    background: transparent;
+    color: #faf7f2;
+    border: 1px solid #444;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    margin-right: 10px;
+  }
+
+  /* === APP === */
+  .app {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    min-height: calc(100vh - 56px);
+  }
+
+  /* === SIDEBAR === */
+  .sidebar {
+    background: #f4ede0;
+    border-right: 1px solid #e7dfcc;
+    padding: 28px 22px;
+    font-family: -apple-system, 'Inter', sans-serif;
+    overflow-y: auto;
+  }
+  .sidebar .brand { font-family: 'Charter', serif; font-size: 22px; font-weight: 700; line-height: 1.2; }
+  .sidebar .brand-sub { font-size: 11px; color: #92400e; font-weight: 600; letter-spacing: 0.08em; margin-top: 4px; }
+  .sidebar .search {
+    margin-top: 18px;
+    width: 100%;
+    padding: 9px 12px;
+    background: white;
+    border: 1px solid #e7dfcc;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: -apple-system, sans-serif;
+  }
+
+  .progress-overall {
+    margin: 22px 0;
+    padding: 16px;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #e7dfcc;
+  }
+  .progress-overall .lbl { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  .progress-overall .num { font-family: 'Charter', serif; font-size: 28px; font-weight: 700; color: #92400e; line-height: 1; margin-top: 4px; }
+  .progress-overall .num span { font-size: 14px; color: #b8a584; font-weight: 400; }
+  .progress-overall .bar { margin-top: 10px; height: 6px; background: #fef3c7; border-radius: 3px; overflow: hidden; }
+  .progress-overall .bar-fill { height: 100%; background: linear-gradient(90deg, #f59e0b, #d97706); width: 24%; border-radius: 3px; }
+
+  .nav-section { margin-top: 22px; }
+  .nav-section .heading {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #92400e;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-section .count { color: #b8a584; font-weight: 500; font-size: 11px; }
+
+  .lesson {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #4a4a4a;
+    cursor: pointer;
+    margin-bottom: 2px;
+  }
+  .lesson:hover { background: rgba(255,255,255,0.6); }
+  .lesson.done { color: #6b7280; }
+  .lesson.active {
+    background: white;
+    font-weight: 600;
+    color: #1a1a1a;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  }
+
+  .pip {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid #d4c4a0;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .pip.done { background: #92400e; border-color: #92400e; color: white; }
+  .pip.done::after { content: '✓'; }
+  .pip.active { background: white; border: 2px solid #d97706; }
+  .pip.active::after { content: ''; width: 6px; height: 6px; background: #d97706; border-radius: 50%; }
+
+  .nav-section.future .heading { color: #b8a584; }
+  .nav-section.future .lesson { color: #b8a584; cursor: default; font-style: italic; }
+  .nav-section.future .pip { border-style: dashed; }
+
+  /* === MAIN === */
+  .main-wrap {
+    overflow-y: auto;
+    padding: 56px 80px;
+  }
+  .main {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .eyebrow {
+    font-family: -apple-system, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #c2410c;
+    font-weight: 600;
+  }
+  .main h1 {
+    font-family: 'Charter', 'Georgia', serif;
+    font-size: 46px;
+    line-height: 1.12;
+    margin: 10px 0 28px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .main p {
+    font-size: 19px;
+    line-height: 1.7;
+    color: #2a2a2a;
+    margin-bottom: 18px;
+  }
+  .main p em { color: #92400e; font-style: italic; }
+  .pull-quote {
+    border-left: 3px solid #f59e0b;
+    padding: 6px 0 6px 22px;
+    font-style: italic;
+    color: #6b3410;
+    margin: 28px 0;
+    font-size: 19px;
+    line-height: 1.6;
+  }
+  .illus {
+    margin: 36px 0;
+    background: linear-gradient(135deg, #fde68a 0%, #fbbf24 100%);
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+  }
+  .illus svg { max-width: 100%; height: auto; }
+  .illus-caption {
+    font-family: -apple-system, sans-serif;
+    font-size: 13px;
+    color: #92400e;
+    margin-top: 14px;
+    font-weight: 500;
+  }
+
+  .check-card {
+    background: white;
+    border-radius: 12px;
+    padding: 28px;
+    margin-top: 36px;
+    border-left: 4px solid #f59e0b;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .check-label {
+    font-family: -apple-system, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #92400e;
+    font-weight: 700;
+  }
+  .check-card h4 {
+    font-family: 'Charter', serif;
+    font-size: 24px;
+    margin: 6px 0 16px;
+  }
+  .check-card .opt {
+    display: block;
+    padding: 14px 18px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-family: -apple-system, sans-serif;
+    font-size: 15px;
+    color: #2a2a2a;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .check-card .opt:hover {
+    border-color: #f59e0b;
+    background: #fffbeb;
+  }
+
+  .next-prev {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 56px;
+    padding-top: 28px;
+    border-top: 1px solid #e7dfcc;
+    font-family: -apple-system, sans-serif;
+  }
+  .nav-btn {
+    padding: 10px 18px;
+    border: 1px solid #d4c4a0;
+    background: white;
+    border-radius: 8px;
+    color: #1a1a1a;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .nav-btn.next {
+    background: #1a1a1a;
+    color: white;
+    border-color: #1a1a1a;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP STRIP: brainstorming question -->
+<div class="top-strip">
+  <div class="question">Does this layout feel right? — sidebar tracker + editorial main column</div>
+  <div>
+    <button class="reject-btn" onclick="reject()">Tell me what to change</button>
+    <button class="approve-btn" id="approveBtn" onclick="approve()">✓ Approve layout</button>
+  </div>
+</div>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="brand">Chainlink Ledger</div>
+    <div class="brand-sub">STUDY COMPANION</div>
+
+    <input class="search" type="text" placeholder="🔍  Search lessons, terms…">
+
+    <div class="progress-overall">
+      <div class="lbl">Your progress</div>
+      <div class="num">12<span> / 50 lessons</span></div>
+      <div class="bar"><div class="bar-fill"></div></div>
+    </div>
+
+    <div class="nav-section">
+      <div class="heading"><span>Bitcoin Foundations</span><span class="count">3 / 6</span></div>
+      <div class="lesson done"><div class="pip done"></div>Why Bitcoin exists</div>
+      <div class="lesson done"><div class="pip done"></div>Keys, addresses & wallets</div>
+      <div class="lesson done"><div class="pip done"></div>The UTXO model</div>
+      <div class="lesson active"><div class="pip active"></div>Bitcoin transactions</div>
+      <div class="lesson"><div class="pip"></div>Mining & proof of work</div>
+      <div class="lesson"><div class="pip"></div>The blockchain itself</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="heading"><span>Ethereum Foundations</span><span class="count">2 / 6</span></div>
+      <div class="lesson done"><div class="pip done"></div>What Ethereum is</div>
+      <div class="lesson done"><div class="pip done"></div>Accounts vs UTXO</div>
+      <div class="lesson"><div class="pip"></div>Transactions & gas</div>
+      <div class="lesson"><div class="pip"></div>Smart contracts & Solidity</div>
+      <div class="lesson"><div class="pip"></div>The EVM</div>
+      <div class="lesson"><div class="pip"></div>DeFi primitives</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="heading"><span>EVM Deep Dive</span><span class="count">0 / 5</span></div>
+      <div class="lesson"><div class="pip"></div>Opcodes & gas costs</div>
+      <div class="lesson"><div class="pip"></div>Storage slots</div>
+      <div class="lesson"><div class="pip"></div>Logs & events</div>
+      <div class="lesson"><div class="pip"></div>Internal traces</div>
+      <div class="lesson"><div class="pip"></div>Proxy patterns</div>
+    </div>
+
+    <div class="nav-section future">
+      <div class="heading"><span>Chainlink Project</span><span class="count">unlocks</span></div>
+      <div class="lesson"><div class="pip"></div>ABI decoding</div>
+      <div class="lesson"><div class="pip"></div>ERC-677 & LINK</div>
+      <div class="lesson"><div class="pip"></div>Payment Abstraction</div>
+      <div class="lesson"><div class="pip"></div>OCR aggregation</div>
+      <div class="lesson"><div class="pip"></div>CCIP cross-chain</div>
+      <div class="lesson"><div class="pip"></div>Reconciliation</div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-wrap">
+    <div class="main">
+      <div class="eyebrow">Bitcoin Foundations · Lesson 4 of 6</div>
+      <h1>What moves through Bitcoin?</h1>
+      <p>Imagine you slide a $20 bill across a table. The bill itself doesn't change &mdash; only who holds it. Bitcoin works the same way, but the &ldquo;bill&rdquo; is a chain of digital signatures, and the table is a public ledger anyone can audit.</p>
+      <p>The unit of movement is called a <em>transaction</em>. It is the only thing Bitcoin actually stores. Blocks just bundle them.</p>
+
+      <div class="pull-quote">A transaction in Bitcoin is not a debit on a balance sheet &mdash; it is the destruction of one set of IOUs and the creation of another.</div>
+
+      <div class="illus">
+        <svg viewBox="0 0 480 140" style="width:100%; max-width:480px;">
+          <defs>
+            <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L9,3 z" fill="#92400e"/>
+            </marker>
+          </defs>
+          <rect x="20" y="40" width="120" height="60" rx="8" fill="white" stroke="#92400e" stroke-width="2"/>
+          <text x="80" y="65" text-anchor="middle" font-family="Charter,Georgia" font-size="14" font-weight="600" fill="#1a1a1a">Alice</text>
+          <text x="80" y="84" text-anchor="middle" font-family="Charter,Georgia" font-size="11" fill="#92400e">5.0 BTC (input)</text>
+          <line x1="148" y1="70" x2="200" y2="70" stroke="#92400e" stroke-width="2" marker-end="url(#arr)"/>
+          <rect x="210" y="20" width="120" height="100" rx="8" fill="#fef3c7" stroke="#92400e" stroke-width="2"/>
+          <text x="270" y="48" text-anchor="middle" font-family="Charter,Georgia" font-size="14" font-weight="600" fill="#1a1a1a">Transaction</text>
+          <text x="270" y="68" text-anchor="middle" font-family="Charter,Georgia" font-size="10" fill="#92400e">signed by Alice</text>
+          <text x="270" y="86" text-anchor="middle" font-family="Charter,Georgia" font-size="10" fill="#92400e">→ Bob 4.99 BTC</text>
+          <text x="270" y="100" text-anchor="middle" font-family="Charter,Georgia" font-size="10" fill="#92400e">→ fee 0.01 BTC</text>
+          <line x1="338" y1="70" x2="395" y2="70" stroke="#92400e" stroke-width="2" marker-end="url(#arr)"/>
+          <rect x="400" y="40" width="60" height="60" rx="8" fill="white" stroke="#92400e" stroke-width="2"/>
+          <text x="430" y="65" text-anchor="middle" font-family="Charter,Georgia" font-size="14" font-weight="600" fill="#1a1a1a">Bob</text>
+          <text x="430" y="84" text-anchor="middle" font-family="Charter,Georgia" font-size="11" fill="#92400e">4.99 BTC</text>
+        </svg>
+        <div class="illus-caption">A single Bitcoin transaction with one input, two outputs, and an implicit fee.</div>
+      </div>
+
+      <p>Bitcoin's design refuses the idea of an &ldquo;account balance&rdquo; altogether. Your wallet is just software that scans the ledger and shows you which IOUs are addressed to a key you control. Spending one is destructive: the IOU is consumed, and a new IOU is written for the recipient.</p>
+
+      <div class="check-card">
+        <div class="check-label">Check yourself</div>
+        <h4>Where does the 0.01 BTC fee go?</h4>
+        <div class="opt">⚪ &nbsp; Burned forever</div>
+        <div class="opt">⚪ &nbsp; Paid to whoever mines the block this lands in</div>
+        <div class="opt">⚪ &nbsp; Returned to Alice if Bob doesn't claim within 10 minutes</div>
+      </div>
+
+      <div class="next-prev">
+        <button class="nav-btn">← The UTXO model</button>
+        <span style="color:#b8a584;font-size:13px;">Lesson 4 of 6</span>
+        <button class="nav-btn next">Mining &amp; proof of work →</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function approve() {
+    const btn = document.getElementById('approveBtn');
+    btn.classList.add('approved');
+    btn.textContent = '✓ Approved — return to terminal';
+    if (typeof toggleSelect === 'function') {
+      toggleSelect({ dataset: { choice: 'approved' }, classList: { toggle: () => {} } });
+    } else if (typeof window.spClick === 'function') {
+      window.spClick('approved', 'Layout approved');
+    } else {
+      const ev = { type: 'click', choice: 'approved', text: 'Layout approved', timestamp: Date.now() };
+      fetch('/api/event', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(ev) }).catch(() => {});
+    }
+  }
+  function reject() {
+    if (typeof toggleSelect === 'function') {
+      toggleSelect({ dataset: { choice: 'reject' }, classList: { toggle: () => {} } });
+    }
+  }
+</script>
+
+</body>
+</html>

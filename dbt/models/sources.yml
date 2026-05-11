@@ -1,0 +1,30 @@
+version: 2
+
+sources:
+  - name: raw_external
+    description: "GCS-backed external tables populated by the Python ingestion layer."
+    database: "{{ env_var('GCP_PROJECT', 'test-proj') }}"
+    schema: staking_raw
+    loader: gcs_parquet
+    loaded_at_field: ingested_at
+    freshness:
+      warn_after: { count: 1, period: hour }
+      error_after: { count: 6, period: hour }
+    tables:
+      - name: raw_blocks
+      - name: raw_transactions
+      - name: raw_receipts
+      - name: raw_logs
+      - name: raw_traces
+      - name: raw_balance_snapshots
+      - name: decoded_events
+      - name: decoded_trace_calls
+      - name: decode_failures
+      - name: economic_actions
+      - name: token_movements
+      - name: ledger_entries
+      - name: action_movement_edges
+      - name: tx_reconciliation
+      - name: partition_reconciliation
+      - name: source_manifests
+      - name: run_metadata

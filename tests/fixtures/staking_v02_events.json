@@ -1,0 +1,29 @@
+{
+  "_comment": "Frozen RawLog samples for unit tests. The implementer populates real values by capturing logs from Etherscan or the RPC during implementation. Schema follows decoder.types.RawLog.",
+  "samples": [
+    {
+      "_role": "stake_event",
+      "chain_id": 1,
+      "block_number": 0,
+      "block_hash": "0x...",
+      "tx_hash": "0x...",
+      "tx_index": 0,
+      "log_index": 0,
+      "address": "0x...",
+      "topics": ["0x..."],
+      "data": "0x..."
+    },
+    {
+      "_role": "link_transfer_for_stake",
+      "chain_id": 1,
+      "block_number": 0,
+      "block_hash": "0x...",
+      "tx_hash": "0x...",
+      "tx_index": 0,
+      "log_index": 1,
+      "address": "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+      "topics": ["0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"],
+      "data": "0x..."
+    }
+  ]
+}

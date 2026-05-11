@@ -1,0 +1,263 @@
+<h2>Full layout with sidebar &mdash; does this feel right?</h2>
+<p class="subtitle">Direction A's editorial style + a study-tracker sidebar. Click a sidebar item to imagine the navigation. This is the shell every lesson page sits inside.</p>
+
+<style>
+  .browser-chrome {
+    background: #f3f4f6;
+    padding: 8px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex; gap: 6px; align-items: center;
+  }
+  .browser-chrome .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .browser-chrome .url { background: white; padding: 3px 10px; border-radius: 4px; font-size: 11px; color: #6b7280; flex: 1; margin-left: 12px; font-family: -apple-system, sans-serif; }
+
+  .app {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    background: #faf7f2;
+    min-height: 700px;
+    border-radius: 0 0 12px 12px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    font-family: 'Charter', 'Georgia', serif;
+  }
+
+  /* === SIDEBAR === */
+  .sidebar {
+    background: #f4ede0;
+    border-right: 1px solid #e7dfcc;
+    padding: 28px 22px;
+    font-family: -apple-system, 'Inter', sans-serif;
+    overflow-y: auto;
+    color: #1a1a1a;
+  }
+  .sidebar .brand { font-family: 'Charter', serif; font-size: 20px; font-weight: 700; color: #1a1a1a; line-height: 1.2; margin-bottom: 4px; }
+  .sidebar .brand-sub { font-size: 12px; color: #92400e; font-weight: 500; letter-spacing: 0.05em; }
+  .sidebar .search {
+    margin-top: 18px;
+    width: 100%; padding: 8px 12px;
+    background: white; border: 1px solid #e7dfcc; border-radius: 6px;
+    font-size: 13px;
+    box-sizing: border-box;
+  }
+  .progress-overall {
+    margin: 22px 0;
+    padding: 14px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e7dfcc;
+  }
+  .progress-overall .lbl { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  .progress-overall .num { font-family: 'Charter', serif; font-size: 26px; font-weight: 700; color: #92400e; line-height: 1; margin-top: 4px; }
+  .progress-overall .num span { font-size: 14px; color: #b8a584; font-weight: 400; }
+  .progress-overall .bar { margin-top: 10px; height: 6px; background: #fef3c7; border-radius: 3px; overflow: hidden; }
+  .progress-overall .bar-fill { height: 100%; background: linear-gradient(90deg, #f59e0b, #d97706); width: 24%; border-radius: 3px; }
+
+  .nav-section { margin-top: 22px; }
+  .nav-section .heading {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: #92400e; font-weight: 700;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .nav-section .count { color: #b8a584; font-weight: 500; }
+
+  .lesson {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #4a4a4a;
+    cursor: pointer;
+    margin-bottom: 2px;
+  }
+  .lesson:hover { background: rgba(255,255,255,0.5); }
+  .lesson.done { color: #6b7280; }
+  .lesson.active { background: white; font-weight: 600; color: #1a1a1a; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+
+  .pip {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 1.5px solid #d4c4a0;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700;
+  }
+  .pip.done { background: #92400e; border-color: #92400e; color: white; }
+  .pip.done::after { content: '✓'; }
+  .pip.active { background: white; border: 2px solid #d97706; }
+  .pip.active::after { content: ''; width: 6px; height: 6px; background: #d97706; border-radius: 50%; }
+
+  .lesson-meta { color: #b8a584; font-size: 11px; margin-left: auto; font-weight: 500; }
+
+  .nav-section.future .heading { color: #b8a584; }
+  .nav-section.future .lesson { color: #b8a584; cursor: default; font-style: italic; }
+  .nav-section.future .pip { border-style: dashed; }
+
+  /* === MAIN === */
+  .main { padding: 56px 64px; max-width: 760px; }
+  .eyebrow { font-family: -apple-system, sans-serif; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #c2410c; font-weight: 600; }
+  .main h1 { font-family: 'Charter', 'Georgia', serif; font-size: 42px; line-height: 1.15; margin: 8px 0 24px; font-weight: 700; color: #1a1a1a; }
+  .main p { font-size: 19px; line-height: 1.7; color: #2a2a2a; margin-bottom: 18px; }
+  .main p em { color: #92400e; font-style: italic; }
+  .main .pull-quote {
+    border-left: 3px solid #f59e0b;
+    padding: 4px 0 4px 20px;
+    font-style: italic;
+    color: #6b3410;
+    margin: 24px 0;
+    font-size: 18px;
+  }
+  .illus {
+    margin: 32px 0;
+    background: linear-gradient(135deg, #fde68a 0%, #fbbf24 100%);
+    border-radius: 16px;
+    padding: 36px;
+    text-align: center;
+  }
+  .illus svg { max-width: 100%; }
+  .illus-caption { font-family: -apple-system, sans-serif; font-size: 13px; color: #92400e; margin-top: 14px; font-weight: 500; }
+
+  .check-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 32px;
+    border-left: 4px solid #f59e0b;
+  }
+  .check-label { font-family: -apple-system, sans-serif; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #92400e; font-weight: 700; }
+  .check-card h4 { font-family: 'Charter', serif; font-size: 22px; margin: 6px 0 16px; color: #1a1a1a; }
+  .check-card .opt { display: block; padding: 12px 16px; border: 1.5px solid #e5e7eb; border-radius: 8px; margin-bottom: 8px; font-family: -apple-system, sans-serif; font-size: 15px; color: #2a2a2a; cursor: pointer; }
+  .check-card .opt:hover { border-color: #f59e0b; background: #fffbeb; }
+
+  .next-prev {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 56px; padding-top: 24px;
+    border-top: 1px solid #e7dfcc;
+    font-family: -apple-system, sans-serif;
+  }
+  .nav-btn { padding: 10px 18px; border: 1px solid #d4c4a0; background: white; border-radius: 8px; color: #1a1a1a; font-size: 14px; cursor: pointer; }
+  .nav-btn.next { background: #1a1a1a; color: white; border-color: #1a1a1a; }
+</style>
+
+<div class="dir-card selected" data-choice="approve" onclick="toggleSelect(this)" style="border:2px solid #4f46e5; border-radius:12px; overflow:hidden; cursor:pointer; background:white;">
+  <div class="browser-chrome">
+    <span class="dot" style="background:#ef4444"></span>
+    <span class="dot" style="background:#f59e0b"></span>
+    <span class="dot" style="background:#10b981"></span>
+    <span class="url">chainlink-ledger.local/btc/transactions</span>
+  </div>
+
+  <div class="app">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="brand">Chainlink Ledger</div>
+      <div class="brand-sub">STUDY COMPANION</div>
+
+      <input class="search" type="text" placeholder="🔍 &nbsp;Search lessons, terms…">
+
+      <div class="progress-overall">
+        <div class="lbl">Your progress</div>
+        <div class="num">12<span> / 50 lessons</span></div>
+        <div class="bar"><div class="bar-fill"></div></div>
+      </div>
+
+      <div class="nav-section">
+        <div class="heading">Bitcoin Foundations <span class="count">(8 / 9)</span></div>
+        <div class="lesson done"><div class="pip done"></div>Why Bitcoin exists</div>
+        <div class="lesson done"><div class="pip done"></div>Keys, addresses & wallets</div>
+        <div class="lesson done"><div class="pip done"></div>The UTXO model</div>
+        <div class="lesson active"><div class="pip active"></div>Bitcoin transactions</div>
+        <div class="lesson"><div class="pip"></div>Mining & proof of work</div>
+        <div class="lesson"><div class="pip"></div>The blockchain itself</div>
+      </div>
+
+      <div class="nav-section">
+        <div class="heading">Ethereum Foundations <span class="count">(4 / 14)</span></div>
+        <div class="lesson done"><div class="pip done"></div>What Ethereum is</div>
+        <div class="lesson done"><div class="pip done"></div>Accounts vs UTXO</div>
+        <div class="lesson"><div class="pip"></div>Transactions &amp; gas</div>
+        <div class="lesson"><div class="pip"></div>Smart contracts &amp; Solidity</div>
+        <div class="lesson"><div class="pip"></div>The EVM</div>
+        <div class="lesson"><div class="pip"></div>DeFi primitives</div>
+      </div>
+
+      <div class="nav-section">
+        <div class="heading">EVM Deep Dive <span class="count">(0 / 8)</span></div>
+        <div class="lesson"><div class="pip"></div>Opcodes & gas costs</div>
+        <div class="lesson"><div class="pip"></div>Storage slots</div>
+        <div class="lesson"><div class="pip"></div>Logs &amp; events</div>
+        <div class="lesson"><div class="pip"></div>Internal traces</div>
+        <div class="lesson"><div class="pip"></div>Proxy patterns</div>
+      </div>
+
+      <div class="nav-section future">
+        <div class="heading">Chainlink Project <span class="count">(unlocks as we build)</span></div>
+        <div class="lesson"><div class="pip"></div>ABI decoding</div>
+        <div class="lesson"><div class="pip"></div>ERC-677 &amp; LINK token</div>
+        <div class="lesson"><div class="pip"></div>Payment Abstraction</div>
+        <div class="lesson"><div class="pip"></div>OCR aggregation</div>
+        <div class="lesson"><div class="pip"></div>CCIP cross-chain</div>
+        <div class="lesson"><div class="pip"></div>Reconciliation</div>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+      <div class="eyebrow">Bitcoin Foundations &middot; Lesson 4 of 9</div>
+      <h1>What moves through Bitcoin?</h1>
+      <p>Imagine you slide a $20 bill across a table. The bill itself doesn't change &mdash; only who holds it. Bitcoin works the same way, but the &ldquo;bill&rdquo; is a chain of digital signatures, and the table is a public ledger anyone can audit.</p>
+      <p>The unit of movement is called a <em>transaction</em>. It is the only thing Bitcoin actually stores. Blocks just bundle them.</p>
+
+      <div class="pull-quote">A transaction in Bitcoin is not a debit on a balance sheet &mdash; it is the destruction of one set of IOUs and the creation of another.</div>
+
+      <div class="illus">
+        <svg viewBox="0 0 480 140" style="width:100%; max-width:480px;">
+          <defs>
+            <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L9,3 z" fill="#92400e"/>
+            </marker>
+          </defs>
+          <rect x="20" y="40" width="120" height="60" rx="8" fill="white" stroke="#92400e" stroke-width="2"/>
+          <text x="80" y="65" text-anchor="middle" font-family="Charter,Georgia" font-size="14" font-weight="600" fill="#1a1a1a">Alice</text>
+          <text x="80" y="84" text-anchor="middle" font-family="Charter,Georgia" font-size="11" fill="#92400e">5.0 BTC (input)</text>
+          <line x1="148" y1="70" x2="200" y2="70" stroke="#92400e" stroke-width="2" marker-end="url(#arr)"/>
+          <rect x="210" y="20" width="120" height="100" rx="8" fill="#fef3c7" stroke="#92400e" stroke-width="2"/>
+          <text x="270" y="48" text-anchor="middle" font-family="Charter,Georgia" font-size="14" font-weight="600" fill="#1a1a1a">Transaction</text>
+          <text x="270" y="68" text-anchor="middle" font-family="Charter,Georgia" font-size="10" fill="#92400e">signed by Alice</text>
+          <text x="270" y="86" text-anchor="middle" font-family="Charter,Georgia" font-size="10" fill="#92400e">→ Bob 4.99 BTC</text>
+          <text x="270" y="100" text-anchor="middle" font-family="Charter,Georgia" font-size="10" fill="#92400e">→ fee 0.01 BTC</text>
+          <line x1="338" y1="70" x2="395" y2="70" stroke="#92400e" stroke-width="2" marker-end="url(#arr)"/>
+          <rect x="400" y="40" width="60" height="60" rx="8" fill="white" stroke="#92400e" stroke-width="2"/>
+          <text x="430" y="65" text-anchor="middle" font-family="Charter,Georgia" font-size="14" font-weight="600" fill="#1a1a1a">Bob</text>
+          <text x="430" y="84" text-anchor="middle" font-family="Charter,Georgia" font-size="11" fill="#92400e">4.99 BTC</text>
+        </svg>
+        <div class="illus-caption">A single Bitcoin transaction with one input, two outputs, and an implicit fee.</div>
+      </div>
+
+      <p>Bitcoin's design refuses the idea of an "account balance" altogether. Your wallet is just software that scans the ledger and shows you which IOUs are addressed to a key you control. Spending one is destructive: the IOU is consumed, and a new IOU is written for the recipient.</p>
+
+      <div class="check-card">
+        <div class="check-label">Check yourself</div>
+        <h4>Where does the 0.01 BTC fee go?</h4>
+        <div class="opt">⚪ &nbsp; Burned forever</div>
+        <div class="opt">⚪ &nbsp; Paid to whoever mines the block this lands in</div>
+        <div class="opt">⚪ &nbsp; Returned to Alice if Bob doesn't claim within 10 minutes</div>
+      </div>
+
+      <div class="next-prev">
+        <button class="nav-btn">← The UTXO model</button>
+        <span style="color:#b8a584;font-size:13px;">Lesson 4 of 9</span>
+        <button class="nav-btn next">Mining &amp; proof of work →</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<p style="margin-top: 24px; color: #4b5563; font-size: 15px;">
+  <strong>What's in the sidebar:</strong> overall progress, four study tracks (Bitcoin / Ethereum / EVM / Chainlink Project), per-lesson status (◯ unread, ◉ active, ✓ done), search box at top. The Chainlink Project section unlocks as we implement each phase &mdash; a lesson appears the day we ship the matching code.
+</p>
+<p style="color: #4b5563; font-size: 15px;">
+  Click "approve" above to lock this layout, or tell me what to change (sidebar width, status indicators, navigation grouping, etc.).
+</p>

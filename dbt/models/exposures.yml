@@ -1,0 +1,28 @@
+version: 2
+
+exposures:
+  - name: reconciliation_dashboard
+    type: dashboard
+    maturity: medium
+    url: https://lookerstudio.google.com/...
+    description: "Operator-facing health dashboard. Charts: pass-rate, decode-failure rate, freshness lag."
+    depends_on:
+      - ref('reconciliation_status')
+      - ref('wallet_economics')
+    owner:
+      name: economics-de
+      email: economics-de@example.com
+
+  - name: databricks_parity
+    type: analysis
+    maturity: high
+    description: "Cross-warehouse parity check. Marts mirrored to Delta; row + hash diff must be zero."
+    depends_on:
+      - ref('ledger_entries')
+      - ref('staking_link_flows')
+      - ref('wallet_economics')
+      - ref('pool_economics')
+      - ref('reconciliation_status')
+    owner:
+      name: economics-de
+      email: economics-de@example.com

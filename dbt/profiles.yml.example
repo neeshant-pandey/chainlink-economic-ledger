@@ -1,0 +1,36 @@
+# Copy to ~/.dbt/profiles.yml or to dbt/profiles.yml (gitignored).
+chainlink_staking_ledger:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: chainlink-staking-ledger-dev
+      dataset: staking_dev
+      keyfile: /path/to/service-account.json
+      threads: 4
+      location: US
+      timeout_seconds: 300
+    ci:
+      type: bigquery
+      method: oauth
+      project: "{{ env_var('GCP_PROJECT', 'test-proj') }}"
+      dataset: staking_ci
+      threads: 4
+      location: US
+    prod:
+      type: bigquery
+      method: service-account
+      project: chainlink-staking-ledger-prod
+      dataset: staking
+      keyfile: /path/to/prod-sa.json
+      threads: 8
+      location: US
+    local:
+      # DuckDB target — runs the entire pipeline against a local file using
+      # CSV seeds produced by `scripts/seed_to_local.py`. No cloud access needed.
+      # Path is relative to the invocation cwd; the Makefile target invokes
+      # dbt from repo root so the canonical path is `dbt/target/local.duckdb`.
+      type: duckdb
+      path: dbt/target/local.duckdb
+      threads: 4

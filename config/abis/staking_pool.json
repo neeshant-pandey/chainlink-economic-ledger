@@ -1,0 +1,86 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "name": "staker", "type": "address"},
+      {"indexed": false, "name": "newPrincipal", "type": "uint256"},
+      {"indexed": false, "name": "amount", "type": "uint256"}
+    ],
+    "name": "Staked",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "name": "staker", "type": "address"},
+      {"indexed": false, "name": "amount", "type": "uint256"}
+    ],
+    "name": "UnstakeRequested",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "name": "staker", "type": "address"},
+      {"indexed": false, "name": "amount", "type": "uint256"}
+    ],
+    "name": "Unstaked",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "name": "staker", "type": "address"},
+      {"indexed": false, "name": "amount", "type": "uint256"}
+    ],
+    "name": "RewardClaimed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": false, "name": "amount", "type": "uint256"}
+    ],
+    "name": "RewardAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "name": "operator", "type": "address"},
+      {"indexed": false, "name": "amount", "type": "uint256"}
+    ],
+    "name": "Slashed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "name": "staker", "type": "address"},
+      {"indexed": false, "name": "amount", "type": "uint256"}
+    ],
+    "name": "Migrated",
+    "type": "event"
+  },
+  {
+    "constant": false,
+    "inputs": [{"name": "amount", "type": "uint256"}],
+    "name": "stake",
+    "outputs": [],
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [{"name": "amount", "type": "uint256"}],
+    "name": "unbond",
+    "outputs": [],
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "claimReward",
+    "outputs": [],
+    "type": "function"
+  }
+]

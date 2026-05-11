@@ -1,0 +1,53 @@
+# BigQuery datasets, GCS layout, partitioning, clustering. Loaded by
+# `storage/bigquery_loader.create_table_from_schema` and `dataset_writer`.
+
+project: chainlink-staking-ledger-dev
+region: us-central1
+
+gcs:
+  bucket: chainlink-staking-ledger-raw
+  layout: "{layer}/{table}/chain_id={chain_id}/block_date={block_date}/run_partition_id={run_partition_id}"
+
+bigquery:
+  datasets:
+    raw: staking_raw
+    staging: staking_staging
+    intermediate: staking_intermediate
+    marts: staking_marts
+  default_partition: block_date  # DATE type derived from block timestamp
+  default_clustering: [chain_id, contract_address]
+
+tables:
+  raw_blocks:
+    partition_field: block_date
+    cluster_fields: [chain_id]
+  raw_transactions:
+    partition_field: block_date
+    cluster_fields: [chain_id, from_addr]
+  raw_receipts:
+    partition_field: block_date
+    cluster_fields: [chain_id]
+  raw_logs:
+    partition_field: block_date
+    cluster_fields: [chain_id, address]
+  raw_traces:
+    partition_field: block_date
+    cluster_fields: [chain_id, tx_hash]
+  raw_balance_snapshots:
+    partition_field: block_date
+    cluster_fields: [token_address, holder_address]
+  decoded_events:
+    partition_field: block_date
+    cluster_fields: [chain_id, contract_address, event_name]
+  decoded_trace_calls:
+    partition_field: block_date
+    cluster_fields: [chain_id, contract_address]
+  decode_failures:
+    partition_field: block_date
+    cluster_fields: [failure_reason, contract_address]
+  action_movement_edges:
+    partition_field: block_date
+    cluster_fields: [status, chain_id]
+  ledger_entries:
+    partition_field: block_date
+    cluster_fields: [chain_id, account]

@@ -1,0 +1,60 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+.venv/
+venv/
+env/
+
+# uv
+.uv-cache/
+
+.env
+.env.*
+!.env.example
+
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/
+.mypy_cache/
+
+# dbt
+dbt/target/
+dbt/dbt_packages/
+dbt/logs/
+dbt/profiles.yml
+!dbt/profiles.yml.example
+
+# airflow
+airflow/logs/
+airflow/airflow.db
+airflow/webserver_config.py
+
+# data / credentials
+*.parquet
+*.json.gz
+service-account*.json
+credentials/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Internal session/agent logs — not for public submission. Each is a
+# chronological record of how the project was built; remove from gitignore
+# if you want them in the public repo to demonstrate engineering process.
+AUTONOMOUS_LOG.md
+WAKEUP_SUMMARY.md
+FIXES_APPLIED.md

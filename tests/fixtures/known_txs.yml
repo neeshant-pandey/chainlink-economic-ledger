@@ -1,0 +1,45 @@
+# Golden tx fixtures. Each entry pins a real mainnet tx that the pipeline must
+# decode + reconcile correctly. The implementer populates these by selecting
+# representative txs from Etherscan during implementation.
+#
+# Used by: tests/unit/test_event_decoder, test_economic_reconciler, test_ledger_builder
+# Used by: tests/integration/test_end_to_end_backfill, test_replay_after_delete
+
+stake:
+  tx_hash: "0x..."  # TODO: a clean Stake tx
+  block_number: 0
+  expected_actions: [stake]
+  expected_ledger_entries: [debit:wallet, credit:community_pool]
+  expected_movements: 1
+  expected_reconciliation_status: exact
+
+claim_reward:
+  tx_hash: "0x..."  # TODO: a clean RewardClaimed tx
+  block_number: 0
+  expected_actions: [reward_claimed]
+  expected_ledger_entries: [debit:reward_vault, credit:wallet]
+  expected_movements: 1
+  expected_reconciliation_status: exact
+
+unstake_request_then_finalize:
+  request_tx_hash: "0x..."  # TODO
+  finalize_tx_hash: "0x..." # TODO
+  expected_actions: [unstake_requested, unstake_finalized]
+  expected_movements: 1     # only on finalize
+  expected_reconciliation_status_request: not_expected
+  expected_reconciliation_status_finalize: exact
+
+slash:
+  tx_hash: "0x..."  # TODO: a tx with a Slashed event; trace evidence required
+  block_number: 0
+  expected_actions: [slashed]
+  expected_movements_via_trace: 1
+  expected_reconciliation_method: trace
+  expected_reconciliation_status: exact
+
+migrate_v01_to_v02:
+  tx_hash: "0x..."  # TODO
+  expected_actions: [migrated_from_v01, migrated_from_v01]   # two actions per design
+  expected_ledger_entries: [debit:v01_pool, credit:v02_pool]
+  expected_movements: 1
+  expected_reconciliation_status: exact

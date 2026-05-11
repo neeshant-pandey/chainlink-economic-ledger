@@ -1,0 +1,84 @@
+# Chainlink Staking v0.2 contract registry.
+# Reference: https://blog.chain.link/chainlink-staking-v0-2-overview/
+# Verify all addresses against Etherscan + the linked blog post before relying.
+#
+# Deploy block (community pool, mainnet): ~18,400,000 (Q4 2023). Override
+# with the verified value from Etherscan during Phase 1.
+
+chain_id: 1
+role: staking_pool_v02
+deployed_block: 18400000
+
+contracts:
+  # Community Staking Pool — the primary v0.2 pool documented at
+  # https://blog.chain.link/chainlink-staking-v0-2-overview/
+  - role: community_staking_pool
+    address: "0xBc10f2E862ED4502144c7d632a3459F49DFCDB5e"
+    deployed_block: 18400000
+    phases:
+      - abi_version: v0.2.0
+        from_block: 18400000
+        to_block: null
+        abi_file: staking_pool.json
+
+  - role: operator_staking_pool
+    address: "0xa1d76a7ca72128541e9fcacafbda3a92ef94fdc5"
+    deployed_block: 18400000
+    phases:
+      - abi_version: v0.2.0
+        from_block: 18400000
+        to_block: null
+        abi_file: staking_pool.json
+
+  - role: priority_pool
+    address: "0xddcf7e6638d3a45a9bdcd9aa44c2bc2d9f08eaab"
+    deployed_block: 18400000
+    phases:
+      - abi_version: v0.2.0
+        from_block: 18400000
+        to_block: null
+        abi_file: staking_pool.json
+
+  - role: reward_vault
+    address: "0x996913c8c08472f584ab8834e925b06d0eb1d813"
+    deployed_block: 18400000
+    phases:
+      - abi_version: v0.2.0
+        from_block: 18400000
+        to_block: null
+        abi_file: staking_pool.json
+
+  - role: migration_proxy
+    # Real address pending Etherscan verification — the v0.1→v0.2 migration
+    # proxy is documented in the Chainlink staking v0.2 blog post but the
+    # exact deployed address has not been independently confirmed here.
+    # The "migration_proxy" string label IS used by the ledger_builder for
+    # accounting; the address itself is not exercised by the current tests.
+    address: "0x0000000000000000000000000000000000000000"  # TODO: pull from Etherscan
+    deployed_block: 18400000
+    phases:
+      - abi_version: v0.2.0
+        from_block: 18400000
+        to_block: null
+        abi_file: staking_pool.json
+
+# Event signatures (topic0). Compute via:
+#     uv run python scripts/compute_topic0.py 'Staked(address,uint256,uint256,uint256)'
+#
+# `staked` is the verified 4-arg signature `Staked(address,uint256,uint256,uint256)`
+# — its topic0 below matches the real on-chain log emitted by the Community
+# Staking Pool at block 18,671,459 (tx 0x08c2902756cb...). Note: an earlier
+# 3-arg guess `Staked(address,uint256,uint256)` produces a DIFFERENT topic0
+# that does NOT match the chain; the 4-arg form is correct.
+#
+# Other signatures are TBD pending an Etherscan ABI pull — once the canonical
+# Solidity signature string is known, run `compute_topic0.py` to derive each.
+event_signatures:
+  staked: "0xb4caaf29adda3eefee3ad552a8e85058589bf834c7466cae4ee58787f70589ed"
+  unstake_requested: "TBD"
+  unstaked: "TBD"
+  reward_claimed: "TBD"
+  reward_added: "TBD"
+  slashed: "TBD"
+  migrated: "TBD"
+  pool_config_changed: "TBD"

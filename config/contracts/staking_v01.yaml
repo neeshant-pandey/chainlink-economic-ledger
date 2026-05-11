@@ -1,0 +1,19 @@
+# Chainlink Staking v0.1 — narrow scope: only what is needed to reconstruct the
+# v0.1 → v0.2 migration economic event. Do NOT model the full v0.1 protocol.
+
+chain_id: 1
+role: staking_pool_v01
+deployed_block: 16000000   # TODO: verify v0.1 deploy block
+
+contracts:
+  - role: staking_v01_pool
+    address: "0x0000000000000000000000000000000000000000"  # TODO
+    deployed_block: 16000000
+    phases:
+      - abi_version: v0.1.0
+        from_block: 16000000
+        to_block: null
+
+# Only the migration-related events matter here.
+event_signatures:
+  migrated_to_v02: "0x..."  # TODO

@@ -1,0 +1,37 @@
+{
+  "name": "chainlink-staking-ledger-parity",
+  "description": "Cross-warehouse parity check: BigQuery marts vs Databricks Delta tables. Runs daily after the reconciliation_check Airflow DAG. Critical-mart diffs fail; informational-mart diffs alert only.",
+  "schedule": {
+    "quartz_cron_expression": "0 30 6 * * ?",
+    "timezone_id": "UTC",
+    "pause_status": "UNPAUSED"
+  },
+  "tasks": [
+    {
+      "task_key": "ingest_to_delta",
+      "description": "Read GCS parquet for the 7-day comparison window into Delta tables.",
+      "notebook_task": {
+        "notebook_path": "/Repos/chainlink-staking-ledger/databricks/notebooks/gcs_parquet_to_delta",
+        "base_parameters": {
+          "comparison_window_days": "7"
+        }
+      }
+    },
+    {
+      "task_key": "parity_check",
+      "description": "Compare each mart row-by-row between BigQuery and Delta. Critical mismatches fail the job.",
+      "depends_on": [{ "task_key": "ingest_to_delta" }],
+      "notebook_task": {
+        "notebook_path": "/Repos/chainlink-staking-ledger/databricks/notebooks/parity_check",
+        "base_parameters": {
+          "comparison_window_days": "7",
+          "fail_on_critical": "true"
+        }
+      }
+    }
+  ],
+  "email_notifications": {
+    "on_failure": ["economics-de@example.com"]
+  },
+  "max_concurrent_runs": 1
+}

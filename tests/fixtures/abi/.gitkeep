@@ -1,0 +1,3 @@
+# Frozen ABI JSON used by tests. Mirror real ABIs from `config/abis/` but pinned
+# at versions used by tests; do not link to the live config so test breakage is
+# isolated from registry changes.

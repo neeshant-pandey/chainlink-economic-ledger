@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: weekly_reserve_accumulation
+    description: |
+      LINK accumulation in the PA Reserve, weekly, split by source (PA fee
+      inflow vs other). Used to model long-term Reserve growth.
+
+  - name: apy_realized_by_pool
+    description: |
+      Daily reward-yield proxy per pool, annualized. Denominator is daily
+      net principal delta — useful as a rough daily check, NOT an
+      APY-comparable series. True TWAP-APY needs per-block principal
+      snapshots from `lineage/balance_snapshots`; out of scope for this demo.
+
+  - name: fee_attribution_by_source
+    description: |
+      PA fee inflow broken down by source Chainlink service (VRF, Functions,
+      Data Streams, CCIP, other). Feeds per-service profitability modeling.
+
+  - name: staker_reward_sustainability
+    description: |
+      Per-snapshot ratio of staking reward outflow to PA Reserve inflow.
+      Flags days where rewards exceed reserve inflow.

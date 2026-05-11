@@ -1,0 +1,26 @@
+# Pipeline-wide knobs. Override via env vars (which take precedence) — see .env.example.
+
+ingestion:
+  finality_depth: 64                # blocks behind tip considered finalized
+  finality_window_blocks: 64        # the explicit finality-depth setting — explicit alias loaded by ingestion/finality.py
+  log_fetch_window_initial: 2000    # blocks per eth_getLogs call
+  log_fetch_window_min: 32          # minimum window before raising
+  receipt_batch_size: 50
+  trace_parallelism: 4
+  trace_capability_required: true   # fail boot if RPC lacks debug_traceTransaction
+
+reconciliation:
+  partition_window_days: 1          # default reconciliation partition size
+  partial_amount_tolerance_wei: 0   # 0 = exact; raise to allow rounding
+  unknown_signature_threshold_pct: 0.5
+
+monitoring:
+  freshness_max_lag_seconds: 1800   # 30 min
+  alert_severity_critical_pages: true
+
+databricks:
+  comparison_window_days: 7
+  fail_on_critical_diff: true
+
+run:
+  max_partitions_per_dag_run: 100

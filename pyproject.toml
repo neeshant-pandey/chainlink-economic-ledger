@@ -1,0 +1,101 @@
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[project]
+name = "chainlink-economic-ledger"
+version = "0.1.0"
+description = "Reorg-safe Chainlink economic ledger pipeline (Staking v0.2 + Payment Abstraction; raw EVM → reconciled marts)"
+requires-python = ">=3.12"
+readme = "README.md"
+license = { text = "MIT" }
+
+dependencies = [
+    "web3>=7.14.0",
+    "eth-abi>=5.0.0",
+    "eth-utils>=6.0.0",
+    "requests>=2.32.0",
+    "pyarrow>=22.0.0",
+    "google-cloud-bigquery>=3.39.0",
+    "google-cloud-storage>=2.18.0",
+    "pyyaml>=6.0.1",
+    "pydantic>=2.6.0",
+    "tenacity>=9.0.0",
+    "structlog>=25.4.0",
+]
+
+[project.optional-dependencies]
+airflow = [
+    "apache-airflow>=3.1.0",
+    "apache-airflow-providers-google>=21.0.0",
+]
+dbt = [
+    "dbt-core>=1.10.0",
+    "dbt-bigquery>=1.10.0",
+    "dbt-duckdb>=1.10.0",
+    "duckdb>=1.1.0",
+]
+spark = [
+    "pyspark>=4.0.0",
+    "delta-spark>=4.1.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.0",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.14.0",
+    "mypy>=1.18.0",
+    "sqlfluff>=4.0.0",
+    "freezegun>=1.4.0",
+    "responses>=0.24.0",
+    "pre-commit>=4.0.0",
+    "types-requests>=2.32.0",
+    "types-pyyaml>=6.0.0",
+]
+
+[tool.uv]
+default-groups = ["dev"]
+package = true
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "ingestion",
+    "decoder",
+    "storage",
+    "protocols",
+    "reconciliation",
+    "lineage",
+    "monitoring",
+    "spikes",
+    "analytics",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "TID"]
+
+[tool.ruff.lint.per-file-ignores]
+# Databricks notebook markdown docstring tables can't wrap; PySpark idiom
+# uses `from pyspark.sql import functions as F` (N812) and notebook-level
+# command names like Cmd1 (N802). Both are universal Databricks conventions.
+"databricks/notebooks/*.py" = ["E501", "N802", "N812"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = [
+    "integration: integration tests (require RPC + GCP)",
+    "slow: slow tests",
+    "requires_rpc: tests that require live JSON-RPC access",
+    "requires_bq: tests that require live BigQuery access",
+]

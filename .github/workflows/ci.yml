@@ -1,0 +1,73 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  UV_FROZEN: "1"
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "latest"
+          enable-cache: true
+      - run: uv sync
+      - name: ruff check
+        run: uv run ruff check .
+      - name: ruff format check
+        run: uv run ruff format --check .
+      - name: mypy
+        run: uv run mypy ingestion decoder storage protocol reconciliation lineage monitoring
+      - name: pytest unit
+        run: uv run pytest tests/unit -v --cov=. --cov-report=xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage
+          path: coverage.xml
+
+  dbt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "latest"
+          enable-cache: true
+      - run: uv sync --extra dbt
+      - run: cd dbt && uv run dbt deps
+      - run: cd dbt && uv run dbt parse --target ci
+      - run: cd dbt && uv run dbt compile --target ci
+
+  sqlfluff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "latest"
+          enable-cache: true
+      - run: uv sync
+      - run: uv run sqlfluff lint dbt/models dbt/macros dbt/tests --dialect bigquery
+
+  integration:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    needs: [python, dbt]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "latest"
+          enable-cache: true
+      - run: uv sync --extra dbt
+      - run: uv run pytest tests/integration -v -m "not slow"
+        env:
+          RPC_URL: ${{ secrets.RPC_URL }}
+          GCP_PROJECT: ${{ secrets.GCP_PROJECT_TEST }}

@@ -1,0 +1,35 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "name": "depositor", "type": "address"},
+      {"indexed": false, "name": "amount", "type": "uint256"}
+    ],
+    "name": "Deposited",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "name": "recipient", "type": "address"},
+      {"indexed": false, "name": "amount", "type": "uint256"}
+    ],
+    "name": "Withdrawn",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": false, "name": "newConfig", "type": "bytes"}
+    ],
+    "name": "ConfigSet",
+    "type": "event"
+  },
+  {
+    "constant": false,
+    "inputs": [{"name": "amount", "type": "uint256"}],
+    "name": "deposit",
+    "outputs": [],
+    "type": "function"
+  }
+]

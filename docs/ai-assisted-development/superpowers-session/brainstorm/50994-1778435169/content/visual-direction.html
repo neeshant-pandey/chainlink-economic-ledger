@@ -1,0 +1,334 @@
+<h2>Pick a visual direction</h2>
+<p class="subtitle">Same lesson ("What is a Bitcoin transaction?"), three design philosophies. Click the one that matches what you mean by "Brilliant-quality."</p>
+
+<style>
+  .dir-card {
+    border: 2px solid var(--border, #e5e7eb);
+    border-radius: 12px;
+    padding: 0;
+    margin-bottom: 24px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+  }
+  .dir-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+  .dir-card.selected { border-color: #4f46e5; box-shadow: 0 0 0 4px rgba(79,70,229,0.15); }
+  .dir-label {
+    padding: 14px 20px;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+  }
+  .dir-letter {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #4f46e5; color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+  }
+  .dir-name { font-weight: 600; color: #111; }
+  .dir-tag { color: #6b7280; font-size: 13px; margin-left: auto; }
+
+  /* === DIRECTION A: Brilliant.org editorial === */
+  .styleA {
+    background: #faf7f2;
+    padding: 56px 64px;
+    font-family: 'Charter', 'Georgia', serif;
+    color: #1a1a1a;
+  }
+  .styleA .eyebrow { font-family: -apple-system, sans-serif; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #c2410c; font-weight: 600; }
+  .styleA h1 { font-family: 'Charter', 'Georgia', serif; font-size: 44px; line-height: 1.15; margin: 8px 0 24px; font-weight: 700; }
+  .styleA p { font-size: 19px; line-height: 1.7; max-width: 60ch; margin-bottom: 18px; color: #2a2a2a; }
+  .styleA .illus {
+    margin: 32px 0;
+    background: linear-gradient(135deg, #fde68a 0%, #fbbf24 100%);
+    border-radius: 16px;
+    padding: 36px;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 180px;
+  }
+  .styleA .illus svg { width: 100%; max-width: 480px; }
+  .styleA .check {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 40px;
+    border-left: 4px solid #f59e0b;
+  }
+  .styleA .check-label { font-family: -apple-system, sans-serif; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #92400e; font-weight: 700; }
+  .styleA .check h4 { font-family: 'Charter', serif; font-size: 22px; margin: 6px 0 16px; }
+  .styleA .opt { display: block; padding: 12px 16px; border: 1.5px solid #e5e7eb; border-radius: 8px; margin-bottom: 8px; font-family: -apple-system, sans-serif; font-size: 15px; }
+
+  /* === DIRECTION B: Stripe-docs technical === */
+  .styleB {
+    background: white;
+    padding: 48px;
+    font-family: -apple-system, 'Inter', sans-serif;
+    color: #111;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 40px;
+  }
+  .styleB .breadcrumb { font-size: 13px; color: #6b7280; margin-bottom: 8px; }
+  .styleB h1 { font-size: 32px; line-height: 1.2; margin: 0 0 12px; font-weight: 700; letter-spacing: -0.02em; }
+  .styleB .lede { font-size: 17px; line-height: 1.55; color: #4b5563; margin-bottom: 24px; }
+  .styleB h3 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.06em; color: #111; margin: 28px 0 12px; font-weight: 700; }
+  .styleB p { font-size: 15px; line-height: 1.65; color: #374151; }
+  .styleB .table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  .styleB .table th, .styleB .table td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #f3f4f6; }
+  .styleB .table th { font-weight: 600; color: #6b7280; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .styleB .code {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 16px;
+    border-radius: 8px;
+    font-family: 'Menlo', 'SF Mono', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    overflow-x: auto;
+  }
+  .styleB .codepanel {
+    position: sticky; top: 0;
+  }
+  .styleB .codepanel-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #6b7280; margin-bottom: 6px; font-weight: 600; }
+  .styleB .kw { color: #c084fc; }
+  .styleB .str { color: #86efac; }
+  .styleB .num { color: #fbbf24; }
+  .styleB .com { color: #64748b; }
+
+  /* === DIRECTION C: 3blue1brown dark explorer === */
+  .styleC {
+    background: #0a0a0f;
+    padding: 56px 48px;
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: #e8e8f0;
+  }
+  .styleC .eyebrow { color: #06b6d4; font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 600; }
+  .styleC h1 { font-size: 40px; line-height: 1.15; margin: 10px 0 20px; font-weight: 700; background: linear-gradient(90deg, #fde68a, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .styleC p { font-size: 17px; line-height: 1.7; max-width: 60ch; margin-bottom: 14px; color: #c7c7d4; }
+  .styleC .anim {
+    background: radial-gradient(ellipse at center, #1a1a2e, #0a0a0f);
+    border-radius: 16px;
+    padding: 40px;
+    margin: 28px 0;
+    min-height: 200px;
+    border: 1px solid #1f1f2e;
+    position: relative;
+  }
+  .styleC .step-bar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 24px;
+  }
+  .styleC .step {
+    flex: 1; height: 4px; background: #1f1f2e; border-radius: 2px;
+  }
+  .styleC .step.active { background: linear-gradient(90deg, #06b6d4, #f472b6); }
+  .styleC .nav-controls {
+    display: flex; gap: 12px; margin-top: 16px; align-items: center;
+  }
+  .styleC .nav-btn {
+    background: #1a1a2e; color: #e8e8f0; border: 1px solid #2a2a3e;
+    padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 500;
+  }
+  .styleC .nav-btn.primary { background: linear-gradient(135deg, #06b6d4, #8b5cf6); border: none; color: white; }
+  .styleC .step-label { color: #6b7280; font-size: 13px; }
+
+  /* iframe-style mock element */
+  .browser-chrome {
+    background: #f3f4f6;
+    padding: 8px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex; gap: 6px; align-items: center;
+  }
+  .browser-chrome .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .browser-chrome .url { background: white; padding: 3px 10px; border-radius: 4px; font-size: 11px; color: #6b7280; flex: 1; margin-left: 12px; font-family: -apple-system, sans-serif; }
+</style>
+
+<!-- DIRECTION A: BRILLIANT.ORG EDITORIAL -->
+<div class="dir-card" data-choice="a" onclick="toggleSelect(this)">
+  <div class="dir-label">
+    <div class="dir-letter">A</div>
+    <div>
+      <div class="dir-name">Editorial &mdash; Brilliant.org / Quanta Magazine</div>
+      <div class="dir-tag">Soft, narrative, illustrated. Reads like a beautifully designed essay.</div>
+    </div>
+  </div>
+  <div class="browser-chrome">
+    <span class="dot" style="background:#ef4444"></span>
+    <span class="dot" style="background:#f59e0b"></span>
+    <span class="dot" style="background:#10b981"></span>
+    <span class="url">chainlink-ledger.local/btc/transactions</span>
+  </div>
+  <div class="styleA">
+    <div class="eyebrow">Bitcoin &middot; Module 2 of 9</div>
+    <h1>What moves through Bitcoin?</h1>
+    <p>Imagine you slide a $20 bill across a table. The bill itself doesn't change &mdash; only who holds it. Bitcoin works the same way, but the &ldquo;bill&rdquo; is a chain of digital signatures, and the table is a public ledger anyone can audit.</p>
+    <p>The unit of movement is called a <em>transaction</em>. It is the only thing Bitcoin actually stores. Blocks just bundle them.</p>
+    <div class="illus">
+      <svg viewBox="0 0 480 140">
+        <defs>
+          <marker id="arrA" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" fill="#92400e"/>
+          </marker>
+        </defs>
+        <rect x="20" y="40" width="120" height="60" rx="8" fill="white" stroke="#92400e" stroke-width="2"/>
+        <text x="80" y="65" text-anchor="middle" font-family="Charter,Georgia" font-size="14" font-weight="600" fill="#1a1a1a">Alice</text>
+        <text x="80" y="84" text-anchor="middle" font-family="Charter,Georgia" font-size="11" fill="#92400e">5.0 BTC (input)</text>
+        <line x1="148" y1="70" x2="200" y2="70" stroke="#92400e" stroke-width="2" marker-end="url(#arrA)"/>
+        <rect x="210" y="20" width="120" height="100" rx="8" fill="#fef3c7" stroke="#92400e" stroke-width="2"/>
+        <text x="270" y="48" text-anchor="middle" font-family="Charter,Georgia" font-size="14" font-weight="600" fill="#1a1a1a">Transaction</text>
+        <text x="270" y="68" text-anchor="middle" font-family="Charter,Georgia" font-size="10" fill="#92400e">signed by Alice</text>
+        <text x="270" y="86" text-anchor="middle" font-family="Charter,Georgia" font-size="10" fill="#92400e">→ Bob 4.99 BTC</text>
+        <text x="270" y="100" text-anchor="middle" font-family="Charter,Georgia" font-size="10" fill="#92400e">→ fee 0.01 BTC</text>
+        <line x1="338" y1="70" x2="395" y2="70" stroke="#92400e" stroke-width="2" marker-end="url(#arrA)"/>
+        <rect x="400" y="40" width="60" height="60" rx="8" fill="white" stroke="#92400e" stroke-width="2"/>
+        <text x="430" y="65" text-anchor="middle" font-family="Charter,Georgia" font-size="14" font-weight="600" fill="#1a1a1a">Bob</text>
+        <text x="430" y="84" text-anchor="middle" font-family="Charter,Georgia" font-size="11" fill="#92400e">4.99 BTC</text>
+      </svg>
+    </div>
+    <div class="check">
+      <div class="check-label">Check yourself</div>
+      <h4>Where does the 0.01 BTC fee go?</h4>
+      <div class="opt">⚪ &nbsp; Burned forever</div>
+      <div class="opt">⚪ &nbsp; Paid to whoever mines the block this lands in</div>
+      <div class="opt">⚪ &nbsp; Returned to Alice if Bob doesn't claim within 10 minutes</div>
+    </div>
+  </div>
+</div>
+
+<!-- DIRECTION B: STRIPE-DOCS TECHNICAL -->
+<div class="dir-card" data-choice="b" onclick="toggleSelect(this)">
+  <div class="dir-label">
+    <div class="dir-letter">B</div>
+    <div>
+      <div class="dir-name">Technical &mdash; Stripe / GitHub Docs</div>
+      <div class="dir-tag">Two-column. Concept on left, raw bytes / code on the right. Dense, reference-grade.</div>
+    </div>
+  </div>
+  <div class="browser-chrome">
+    <span class="dot" style="background:#ef4444"></span>
+    <span class="dot" style="background:#f59e0b"></span>
+    <span class="dot" style="background:#10b981"></span>
+    <span class="url">chainlink-ledger.local/btc/transactions</span>
+  </div>
+  <div class="styleB">
+    <div>
+      <div class="breadcrumb">Bitcoin &nbsp;/&nbsp; Anatomy &nbsp;/&nbsp; <strong style="color:#111">Transactions</strong></div>
+      <h1>The Bitcoin Transaction</h1>
+      <p class="lede">A transaction is a signed message that consumes existing UTXOs and produces new ones. It is the smallest atomic unit the protocol commits to.</p>
+      <h3>Structure</h3>
+      <table class="table">
+        <thead><tr><th>Field</th><th>Bytes</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>version</td><td>4</td><td>Protocol version (1 or 2)</td></tr>
+          <tr><td>input_count</td><td>1&ndash;9</td><td>VarInt count of inputs</td></tr>
+          <tr><td>inputs[]</td><td>variable</td><td>Each input references prior UTXO + signature</td></tr>
+          <tr><td>output_count</td><td>1&ndash;9</td><td>VarInt count of outputs</td></tr>
+          <tr><td>outputs[]</td><td>variable</td><td>Each output is value + locking script</td></tr>
+          <tr><td>locktime</td><td>4</td><td>Earliest block / timestamp valid</td></tr>
+        </tbody>
+      </table>
+      <h3>Fee derivation</h3>
+      <p>The fee is implicit: <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px;font-size:13px">sum(inputs) &minus; sum(outputs)</code>. There is no &ldquo;fee&rdquo; field on the wire.</p>
+    </div>
+    <div class="codepanel">
+      <div class="codepanel-label">Raw transaction (hex)</div>
+      <div class="code">
+<span class="com"># version</span><br>
+<span class="num">01000000</span><br>
+<span class="com"># 1 input</span><br>
+<span class="num">01</span><br>
+<span class="num">186f9f998a5aa6f048e51dd8419a14d8a0f1a8a9...</span><br>
+<span class="num">00000000</span> <span class="com"># prev vout</span><br>
+<span class="num">8b</span> <span class="com"># script len</span><br>
+<span class="num">483045022100884d142d</span>...<br>
+<span class="num">ffffffff</span> <span class="com"># sequence</span><br>
+<span class="com"># 2 outputs</span><br>
+<span class="num">02</span><br>
+<span class="num">00ca9a3b00000000</span> <span class="com"># 10 BTC</span><br>
+<span class="num">19</span> <span class="num">76a914</span>...<span class="num">88ac</span><br>
+<span class="num">00286bee00000000</span> <span class="com"># 4 BTC</span><br>
+<span class="num">19</span> <span class="num">76a914</span>...<span class="num">88ac</span><br>
+<span class="num">00000000</span> <span class="com"># locktime</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DIRECTION C: 3BLUE1BROWN DARK EXPLORER -->
+<div class="dir-card" data-choice="c" onclick="toggleSelect(this)">
+  <div class="dir-label">
+    <div class="dir-letter">C</div>
+    <div>
+      <div class="dir-name">Explorer &mdash; 3Blue1Brown / Excalidraw</div>
+      <div class="dir-tag">Dark. Step-through. One idea at a time, click "Next" to advance. Animated.</div>
+    </div>
+  </div>
+  <div class="browser-chrome">
+    <span class="dot" style="background:#ef4444"></span>
+    <span class="dot" style="background:#f59e0b"></span>
+    <span class="dot" style="background:#10b981"></span>
+    <span class="url">chainlink-ledger.local/btc/transactions</span>
+  </div>
+  <div class="styleC">
+    <div class="step-bar">
+      <div class="step"></div>
+      <div class="step"></div>
+      <div class="step active"></div>
+      <div class="step"></div>
+      <div class="step"></div>
+      <div class="step"></div>
+    </div>
+    <div class="eyebrow">Step 3 of 6 &middot; Bitcoin transactions</div>
+    <h1>Inputs are receipts.<br/>Outputs are promises.</h1>
+    <p>Forget &ldquo;balances&rdquo; for a moment. Bitcoin doesn't store balances. It only stores <em style="color:#fbbf24">unspent outputs</em>: little IOUs sitting on the ledger, each lockable to a specific key.</p>
+    <p>To spend, you point at one of those IOUs (input), prove you own the key (signature), and write a new IOU for someone else (output).</p>
+    <div class="anim">
+      <svg viewBox="0 0 600 180" style="width:100%">
+        <defs>
+          <linearGradient id="gradC" x1="0" x2="1">
+            <stop offset="0%" stop-color="#06b6d4"/>
+            <stop offset="100%" stop-color="#f472b6"/>
+          </linearGradient>
+          <marker id="arrC" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" fill="url(#gradC)"/>
+          </marker>
+        </defs>
+        <text x="300" y="20" text-anchor="middle" font-size="11" fill="#6b7280" font-family="Inter">UNSPENT OUTPUTS POOL</text>
+        <rect x="40" y="40" width="80" height="44" rx="6" fill="#1a1a2e" stroke="#06b6d4" stroke-width="1.5"/>
+        <text x="80" y="60" text-anchor="middle" font-size="11" fill="#06b6d4" font-family="Menlo">UTXO #a3</text>
+        <text x="80" y="76" text-anchor="middle" font-size="11" fill="#fde68a" font-family="Menlo">5.0 BTC</text>
+        <rect x="140" y="40" width="80" height="44" rx="6" fill="#1a1a2e" stroke="#1f1f2e" stroke-width="1.5" opacity="0.5"/>
+        <text x="180" y="60" text-anchor="middle" font-size="11" fill="#475569" font-family="Menlo">UTXO #f1</text>
+        <text x="180" y="76" text-anchor="middle" font-size="11" fill="#475569" font-family="Menlo">2.1 BTC</text>
+        <rect x="240" y="40" width="80" height="44" rx="6" fill="#1a1a2e" stroke="#1f1f2e" stroke-width="1.5" opacity="0.5"/>
+        <text x="280" y="60" text-anchor="middle" font-size="11" fill="#475569" font-family="Menlo">UTXO #b7</text>
+        <text x="280" y="76" text-anchor="middle" font-size="11" fill="#475569" font-family="Menlo">0.4 BTC</text>
+        <line x1="80" y1="90" x2="80" y2="120" stroke="url(#gradC)" stroke-width="2" marker-end="url(#arrC)"/>
+        <rect x="20" y="125" width="120" height="40" rx="6" fill="#1a1a2e" stroke="#f472b6" stroke-width="1.5"/>
+        <text x="80" y="148" text-anchor="middle" font-size="11" fill="#f472b6" font-family="Menlo">tx: spend UTXO #a3</text>
+        <line x1="140" y1="145" x2="380" y2="145" stroke="url(#gradC)" stroke-width="2" stroke-dasharray="4 4"/>
+        <rect x="380" y="125" width="100" height="40" rx="6" fill="#1a1a2e" stroke="#06b6d4" stroke-width="1.5"/>
+        <text x="430" y="143" text-anchor="middle" font-size="11" fill="#06b6d4" font-family="Menlo">new UTXO #d8</text>
+        <text x="430" y="158" text-anchor="middle" font-size="11" fill="#fde68a" font-family="Menlo">4.99 BTC → Bob</text>
+        <rect x="495" y="125" width="80" height="40" rx="6" fill="#1a1a2e" stroke="#06b6d4" stroke-width="1.5"/>
+        <text x="535" y="143" text-anchor="middle" font-size="11" fill="#06b6d4" font-family="Menlo">fee</text>
+        <text x="535" y="158" text-anchor="middle" font-size="11" fill="#fde68a" font-family="Menlo">0.01 BTC</text>
+      </svg>
+    </div>
+    <p style="color:#9ca3af; font-size:14px;">UTXO #a3 is now <em>consumed</em>. It will never appear again. The two new UTXOs (#d8 + the fee) are now spendable by their owners.</p>
+    <div class="nav-controls">
+      <button class="nav-btn">← Back</button>
+      <span class="step-label">Step 3 / 6</span>
+      <button class="nav-btn primary" style="margin-left:auto">Next: how the signature works →</button>
+    </div>
+  </div>
+</div>
+
+<p style="margin-top: 32px; color: #6b7280; font-size: 14px; text-align: center;">
+  Each direction is the same content, same depth &mdash; just a different visual philosophy. You can also pick a hybrid (e.g. "A's editorial feel but B's two-column code panel").
+</p>

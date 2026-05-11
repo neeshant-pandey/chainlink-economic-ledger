@@ -1,0 +1,66 @@
+# Chainlink Payment Abstraction (PA) contract registry.
+#
+# PA is the hero protocol — moves LINK fees from Chainlink services into the
+# Reserve via FeeAggregator → SwapAutomator → Reserves.
+#
+# Verify all addresses against Etherscan before relying on them. The hashes
+# below are the canonical mainnet addresses as of May 2026.
+
+chain_id: 1
+role: payment_abstraction
+deployed_block: 19000000   # approximate; replace with verified deploy block
+
+contracts:
+  - role: pa_reserves
+    # PA Reserves (mainnet, lowercase canonical for joining; mixed-case form
+    # is 0x5680681ED3767B96914CE741a308155C7fB9171d on Etherscan).
+    address: "0x5680681ED3767B96914CE741a308155C7fB9171d"
+    deployed_block: 19000000
+    phases:
+      - abi_version: v1.0.0
+        from_block: 19000000
+        to_block: null
+        abi_file: reserves.json
+
+  - role: pa_fee_aggregator
+    # PA FeeAggregator (mainnet). Verified on-chain (May 2026) as a DIRECT
+    # deployment — NOT an EIP-1967 proxy. eth_getStorageAt at all three
+    # EIP-1967 slots (impl, admin, beacon) returns 0x0 for this address; see
+    # tests/fixtures/golden_pa_tx/proxy_resolution.json and
+    # tests/unit/test_golden_pa_decoding.py for the negative check.
+    # Etherscan: 0xd6e39d42AceE7Abcc460E6Ea78a0844A0980E78f
+    address: "0xd6e39d42AceE7Abcc460E6Ea78a0844A0980E78f"
+    deployed_block: 19000000
+    phases:
+      - abi_version: v1.0.0
+        from_block: 19000000
+        to_block: null
+        abi_file: fee_aggregator.json
+
+  - role: pa_swap_automator
+    # PA SwapAutomator (mainnet).
+    # Etherscan address: 0x36E827bA2B270535ca1B099a6Ba2B280DDc0315e
+    address: "0x36E827bA2B270535ca1B099a6Ba2B280DDc0315e"
+    deployed_block: 19000000
+    phases:
+      - abi_version: v1.0.0
+        from_block: 19000000
+        to_block: null
+        abi_file: swap_automator.json
+
+# Event signatures the PA semantic mapper classifies into actions.
+# `asset_transferred_for_swap` is verified — topic0 extracted from a real
+# on-chain log (FeeAggregator → SwapAutomator transfer in tx
+# 0x92359883d1f3...) and matches keccak256 of the canonical Solidity
+# signature `AssetTransferredForSwap(address,address,uint256)`.
+# `link_received_at_reserves` is the standard ERC-20 Transfer signature.
+# Other event topics are TBD pending Etherscan ABI pull — use
+# scripts/compute_topic0.py once canonical signatures are known.
+event_signatures:
+  asset_transferred_for_swap: "0xc153544804f2cfae0e8eb92d3f202c159d0caf2f5590d790a987091dc85366a0"
+  link_received_at_reserves:  "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"  # ERC-20 Transfer
+  fee_received:               "TBD"  # FeeReceived(...) — pending ABI pull
+  swap_executed:              "TBD"  # SwapExecuted(...) — pending ABI pull
+  reserves_deposit:           "TBD"  # Deposited(...) — pending ABI pull
+  service_fee_forwarded:      "TBD"  # ServiceFeeForwarded(...) — pending ABI pull
+  config_set:                 "TBD"  # ConfigSet(...) — pending ABI pull

@@ -1,0 +1,106 @@
+name: chainlink_staking_ledger
+version: '0.1.0'
+config-version: 2
+
+profile: chainlink_staking_ledger
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+  - "logs"
+
+models:
+  chainlink_staking_ledger:
+    raw:
+      +materialized: view
+      +tags: ["raw"]
+      +schema: raw
+    staging:
+      +materialized: view
+      +tags: ["staging"]
+      +schema: staging
+    intermediate:
+      +materialized: incremental
+      +tags: ["intermediate"]
+      +schema: intermediate
+      +incremental_strategy: merge
+      +on_schema_change: sync_all_columns
+    marts:
+      +materialized: incremental
+      +tags: ["marts"]
+      +schema: marts
+      +incremental_strategy: merge
+      +on_schema_change: append_new_columns
+      +contract:
+        enforced: "{{ target.type != 'duckdb' }}"
+    analytics:
+      +materialized: view
+      +tags: ["analytics"]
+      +schema: analytics
+
+seeds:
+  chainlink_staking_ledger:
+    +schema: seed
+    seed_decoded_events:
+      +column_types:
+        chain_id: INTEGER
+        block_number: BIGINT
+        log_index: INTEGER
+    seed_decoded_trace_calls:
+      +column_types:
+        chain_id: INTEGER
+        block_number: BIGINT
+        success: BOOLEAN
+        parent_success: BOOLEAN
+    seed_link_transfers:
+      +column_types:
+        chain_id: INTEGER
+        block_number: BIGINT
+        tx_index: INTEGER
+        log_index: INTEGER
+        ingested_at: BIGINT
+    seed_canonical_blocks:
+      +column_types:
+        chain_id: INTEGER
+        block_number: BIGINT
+        timestamp: BIGINT
+        ingested_at: BIGINT
+    seed_economic_actions:
+      +column_types:
+        chain_id: INTEGER
+        block_number: BIGINT
+        log_index: INTEGER
+        amount_link: DECIMAL(38,0)
+    seed_token_movements:
+      +column_types:
+        chain_id: INTEGER
+        block_number: BIGINT
+        amount: DECIMAL(38,0)
+        is_canonical: BOOLEAN
+    seed_action_movement_edges:
+      +column_types:
+        chain_id: INTEGER
+        block_number: BIGINT
+        allocated_amount: DECIMAL(38,0)
+    seed_ledger_entries:
+      +column_types:
+        chain_id: INTEGER
+        block_number: BIGINT
+        entry_index: INTEGER
+        amount_link: DECIMAL(38,0)
+
+vars:
+  chain_id: 1
+  # finality_depth: production = 64 (Ethereum 2 epochs), local DuckDB demo = 0
+  # so the seed-supplied blocks (treated as "all finalized" in the demo) flow
+  # through stg_canonical_blocks without depending on a "newer max block".
+  finality_depth: "{{ 0 if target.type == 'duckdb' else 64 }}"
+  unknown_signature_threshold_pct: 0.5

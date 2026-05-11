@@ -1,0 +1,5 @@
+# Place ABI JSON files here. Naming convention: {role}_{abi_version}.json
+# e.g. community_staking_pool_v0.2.0.json, link_token_erc20_v1.json
+#
+# AbiRegistry.load_from_config validates that every (contract, phase.abi_version)
+# in config/contracts/*.yaml has a matching ABI file here. Missing files = boot fail.

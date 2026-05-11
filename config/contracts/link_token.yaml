@@ -1,0 +1,19 @@
+# LINK ERC-20 token. Source of truth for token movements.
+
+chain_id: 1
+role: link_token
+deployed_block: 4281611  # LINK token genesis on Ethereum mainnet
+
+contracts:
+  - role: link_token
+    address: "0x514910771AF9Ca656af840dff83E8264EcF986CA"
+    deployed_block: 4281611
+    phases:
+      - abi_version: erc20_v1
+        from_block: 4281611
+        to_block: null
+        abi_file: link_token.json
+
+event_signatures:
+  transfer: "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+  approval: "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925"

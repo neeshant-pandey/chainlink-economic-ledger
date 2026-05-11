@@ -1,0 +1,148 @@
+version: 2
+
+models:
+  - name: ledger_entries
+    description: "Double-entry economic ledger for Chainlink Staking v0.2 (LINK)."
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: entry_id
+        data_type: string
+        constraints: [{ type: not_null }, { type: primary_key }]
+        tests: [not_null, unique]
+      - name: action_id
+        data_type: string
+        constraints: [{ type: not_null }]
+      - name: entry_index
+        data_type: int64
+        constraints: [{ type: not_null }]
+      - name: account
+        data_type: string
+        constraints: [{ type: not_null }]
+      - name: direction
+        data_type: string
+        constraints: [{ type: not_null }]
+        tests:
+          - accepted_values:
+              values: [debit, credit]
+      - name: amount_link
+        data_type: numeric
+        constraints: [{ type: not_null }]
+        description: "Raw uint256 in LINK base units (wei-equivalent, 1e18). Always positive."
+      - name: chain_id
+        data_type: int64
+        constraints: [{ type: not_null }]
+      - name: block_number
+        data_type: int64
+        constraints: [{ type: not_null }]
+      - name: tx_hash
+        data_type: string
+        constraints: [{ type: not_null }]
+      - name: run_partition_id
+        data_type: string
+        description: "Lineage only. NOT part of unique key."
+
+  - name: staking_link_flows
+    description: "Per-event wallet flow surface."
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: event_id
+        data_type: string
+        constraints: [{ type: not_null }, { type: primary_key }]
+        tests: [not_null, unique]
+      - name: wallet
+        data_type: string
+        constraints: [{ type: not_null }]
+      - name: flow_type
+        data_type: string
+        constraints: [{ type: not_null }]
+        tests:
+          - accepted_values:
+              values: [stake, unstake_requested, unstake_finalized, reward_claimed, reward_accrued, slashed, migrated_from_v01]
+      - name: amount_link
+        data_type: numeric
+        constraints: [{ type: not_null }]
+      - name: tx_hash
+        data_type: string
+        constraints: [{ type: not_null }]
+      - name: block_number
+        data_type: int64
+        constraints: [{ type: not_null }]
+      - name: reconciliation_status
+        data_type: string
+        tests:
+          - accepted_values:
+              values: [exact, partial, unmatched, not_expected, unexpected, ambiguous]
+      - name: run_partition_id
+        data_type: string
+
+  - name: wallet_economics
+    description: "Daily per-wallet rollup."
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: wallet
+        data_type: string
+        constraints: [{ type: not_null }]
+      - name: snapshot_date
+        data_type: date
+        constraints: [{ type: not_null }]
+      - name: total_staked
+        data_type: numeric
+      - name: total_claimed
+        data_type: numeric
+      - name: total_slashed
+        data_type: numeric
+      - name: net_flow
+        data_type: numeric
+      - name: run_partition_id
+        data_type: string
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [wallet, snapshot_date]
+
+  - name: pool_economics
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: pool_address
+        data_type: string
+        constraints: [{ type: not_null }]
+      - name: snapshot_date
+        data_type: date
+        constraints: [{ type: not_null }]
+      - name: rewards_distributed
+        data_type: numeric
+      - name: slashes_applied
+        data_type: numeric
+      - name: end_of_day_balance
+        data_type: numeric
+      - name: run_partition_id
+        data_type: string
+
+  - name: reconciliation_status
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: partition_id
+        data_type: string
+        constraints: [{ type: not_null }, { type: primary_key }]
+        tests: [not_null, unique]
+      - name: chain_id
+        data_type: int64
+      - name: block_range_start
+        data_type: int64
+      - name: block_range_end
+        data_type: int64
+      - name: pass_rate
+        data_type: float64
+      - name: counts_by_status
+        data_type: json
+      - name: run_partition_id
+        data_type: string
