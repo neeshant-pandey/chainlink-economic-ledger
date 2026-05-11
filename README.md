@@ -14,7 +14,9 @@ Two real mainnet transactions are reconciled end-to-end as part of the test suit
 | Staking v0.2 stake | [`0x08c2902756cb…`](https://etherscan.io/tx/0x08c2902756cb28085da691e3712c83c83c92d9f49b6e22c0e2bf5e9b9e4a9d22) | 18,671,459 | 146.00 |
 | PA Reserves deposit | [`0x92359883d1f3…`](https://etherscan.io/tx/0x92359883d1f38f36c619247ac9e0e6049cb5fcc7282012fc78ecf4089434ed91) | 24,139,066 | 9,463.18 |
 
-> The repository was AI-assisted and curated into a portfolio project. The AI process notes are preserved under [`docs/ai-assisted-development/`](docs/ai-assisted-development/) for transparency. A richer, styled architecture page is at [`docs/architecture.html`](docs/architecture.html).
+> The repository was AI-assisted and curated into a portfolio project. The AI process notes are preserved under [`docs/ai-assisted-development/`](docs/ai-assisted-development/) for transparency.
+>
+> **Live architecture page:** https://neeshant-pandey.github.io/chainlink-economic-ledger/architecture.html (the styled, full-page version of the diagrams below).
 
 ---
 
