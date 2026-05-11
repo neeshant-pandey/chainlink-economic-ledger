@@ -41,6 +41,7 @@ jobs:
           version: "latest"
           enable-cache: true
       - run: uv sync --extra dbt
+      - run: cp dbt/profiles.yml.example dbt/profiles.yml
       - run: uv run --extra dbt dbt deps --project-dir dbt
       - run: uv run --extra dbt dbt parse --project-dir dbt --profiles-dir dbt --target local
       - run: uv run --extra dbt dbt compile --project-dir dbt --profiles-dir dbt --target local
