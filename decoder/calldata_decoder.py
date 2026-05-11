@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from eth_abi import decode as abi_decode
+from eth_abi.abi import decode as abi_decode
 
 from decoder.abi_registry import AbiRegistry
 from decoder.types import Abi, DecodedCall, DecodeResult

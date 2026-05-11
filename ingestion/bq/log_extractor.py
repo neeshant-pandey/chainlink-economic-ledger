@@ -30,6 +30,22 @@ from ingestion.bq.bq_client import BQClient
 BQ_PUBLIC_DATASET = "bigquery-public-data.crypto_ethereum"
 
 
+def _as_int(value: object, default: int = 0) -> int:
+    if value is None:
+        return default
+    return int(str(value))
+
+
+def _as_list(value: object) -> list[object]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    if isinstance(value, tuple):
+        return list(value)
+    return [value]
+
+
 def fetch_logs_by_address(
     client: BQClient,
     chain_id: int,
@@ -143,16 +159,14 @@ def _bq_row_to_raw_log(row: dict[str, object], chain_id: int) -> RawLog:
     Pure function; no I/O. Lives in this module so all log-shape mapping is
     one place.
     """
-    topics_field = row.get("topics") or []
-    if not isinstance(topics_field, list):
-        topics_field = list(topics_field)  # type: ignore[arg-type]
+    topics_field = _as_list(row.get("topics"))
     return RawLog(
         chain_id=chain_id,
-        block_number=int(row["block_number"]),  # type: ignore[arg-type]
+        block_number=_as_int(row["block_number"]),
         block_hash=str(row.get("block_hash", "")),
         tx_hash=str(row["transaction_hash"]).lower(),
-        tx_index=int(row.get("transaction_index", 0) or 0),  # type: ignore[arg-type]
-        log_index=int(row.get("log_index", 0) or 0),  # type: ignore[arg-type]
+        tx_index=_as_int(row.get("transaction_index")),
+        log_index=_as_int(row.get("log_index")),
         address=str(row["address"]).lower(),
         topics=[str(t) for t in topics_field],
         data=str(row.get("data", "0x")),

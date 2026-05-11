@@ -31,12 +31,10 @@ def snapshot_token_balance(
     # Delegate to the RPC client's lower-level eth_call helper if present.
     # The client exposes get_token_balance directly; we forward to keep the API
     # narrow.
-    balance = client.get_token_balance(  # type: ignore[attr-defined]
-        token_address, holder_address, block_number
-    )
+    balance = client.get_token_balance(token_address, holder_address, block_number)
     _ = calldata  # documentation; the actual call routes through the client
     return TokenBalance(
-        chain_id=client.get_chain_id(),  # type: ignore[attr-defined]
+        chain_id=client.get_chain_id(),
         block_number=block_number,
         token_address=token_address.lower(),
         holder_address=holder_address.lower(),

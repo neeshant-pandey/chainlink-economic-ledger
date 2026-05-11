@@ -20,6 +20,12 @@ from ingestion.bq.bq_client import BQClient
 BQ_PUBLIC_DATASET = "bigquery-public-data.crypto_ethereum"
 
 
+def _as_int(value: object, default: int = 0) -> int:
+    if value is None:
+        return default
+    return int(str(value))
+
+
 def fetch_transactions_in_range(
     client: BQClient,
     chain_id: int,
@@ -68,23 +74,23 @@ def fetch_transaction_by_hash(
 def _row_to_transaction(row: dict[str, object], chain_id: int) -> Transaction:
     return Transaction(
         chain_id=chain_id,
-        block_number=int(row["block_number"]),  # type: ignore[arg-type]
+        block_number=_as_int(row["block_number"]),
         block_hash=str(row.get("block_hash", "")),
         tx_hash=str(row["hash"]).lower(),
-        tx_index=int(row.get("transaction_index", 0) or 0),  # type: ignore[arg-type]
+        tx_index=_as_int(row.get("transaction_index")),
         from_addr=str(row.get("from_address", "")).lower(),
         to_addr=(str(row["to_address"]).lower() if row.get("to_address") else None),
-        value=int(row.get("value", 0) or 0),  # type: ignore[arg-type]
+        value=_as_int(row.get("value")),
         input_data=str(row.get("input", "0x")),
-        gas=int(row.get("gas", 0) or 0),  # type: ignore[arg-type]
-        gas_price=(int(row["gas_price"]) if row.get("gas_price") is not None else None),
+        gas=_as_int(row.get("gas")),
+        gas_price=(_as_int(row["gas_price"]) if row.get("gas_price") is not None else None),
         max_fee_per_gas=(
-            int(row["max_fee_per_gas"]) if row.get("max_fee_per_gas") is not None else None
+            _as_int(row["max_fee_per_gas"]) if row.get("max_fee_per_gas") is not None else None
         ),
         max_priority_fee_per_gas=(
-            int(row["max_priority_fee_per_gas"])
+            _as_int(row["max_priority_fee_per_gas"])
             if row.get("max_priority_fee_per_gas") is not None
             else None
         ),
-        nonce=int(row.get("nonce", 0) or 0),  # type: ignore[arg-type]
+        nonce=_as_int(row.get("nonce")),
     )

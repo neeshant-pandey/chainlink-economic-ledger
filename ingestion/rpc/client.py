@@ -64,7 +64,7 @@ class RpcClient:
             "address": list(addresses),
             "topics": topics,
         }
-        results = w3.eth.get_logs(log_filter)  # type: ignore[arg-type]
+        results = w3.eth.get_logs(log_filter)
         out: list[RawLog] = []
         for log in results:
             out.append(
@@ -144,7 +144,7 @@ class RpcClient:
 
     def get_token_balance(self, token_address: str, holder_address: str, block_number: int) -> int:
         """Read balanceOf(holder) at `block_number`."""
-        from eth_utils import keccak
+        from eth_utils.crypto import keccak
 
         selector = "0x" + keccak(text="balanceOf(address)").hex()[:8]
         padded = holder_address.lower().replace("0x", "").rjust(64, "0")
@@ -155,9 +155,6 @@ class RpcClient:
 
     def debug_trace_transaction(self, tx_hash: str, tracer: str = "callTracer") -> RawTrace:
         """Returns the recursive call tree. Raises if provider does not support it."""
-        from web3._utils.method_formatters import method_formatters  # type: ignore[import-untyped]
-
-        _ = method_formatters
         w3 = self._w3_client()
         # web3.py's manager.request_blocking is the lowest-level path
         result = w3.manager.request_blocking(

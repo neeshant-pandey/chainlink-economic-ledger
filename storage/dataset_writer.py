@@ -74,7 +74,7 @@ def _write_parquet_to_gcs(
 
     import io
 
-    from google.cloud import storage  # type: ignore[import-untyped]
+    from google.cloud.storage import Client  # type: ignore[import-untyped]
 
     try:
         import pyarrow as pa
@@ -88,7 +88,7 @@ def _write_parquet_to_gcs(
 
     table = pa.Table.from_pylist(rows)
     buf = io.BytesIO()
-    pq.write_table(table, buf)
+    pq.write_table(table, buf)  # type: ignore[no-untyped-call]
     data_bytes = buf.getvalue()
 
     # Parse gs:// URL
@@ -100,7 +100,7 @@ def _write_parquet_to_gcs(
         else f"part-{run_partition_id}.parquet"
     )
 
-    client = storage.Client()
+    client = Client()
     bucket = client.bucket(bucket_name)
     blob = bucket.blob(object_name)
     blob.upload_from_string(data_bytes, content_type="application/octet-stream")

@@ -112,7 +112,7 @@ def enrich_inflow_with_path(
 
 
 def resolve_fee_aggregator_implementation(
-    fee_aggregator_phase_yaml: dict,
+    fee_aggregator_phase_yaml: dict[str, object],
 ) -> str | None:
     """Locate the active implementation address for the FeeAggregator proxy
     from the contracts YAML phase definition. Returns lowercase address or
@@ -125,11 +125,12 @@ def resolve_fee_aggregator_implementation(
     _ = EIP1967_IMPL_SLOT  # documented; consumed by the rpc fallback path
     from decoder.types import Phase
 
+    to_block_value = fee_aggregator_phase_yaml.get("to_block")
     phase = Phase(
         contract_address="",
         abi_version=str(fee_aggregator_phase_yaml.get("abi_version", "")),
-        from_block=int(fee_aggregator_phase_yaml.get("from_block", 0)),
-        to_block=fee_aggregator_phase_yaml.get("to_block"),
+        from_block=int(str(fee_aggregator_phase_yaml.get("from_block", 0))),
+        to_block=int(str(to_block_value)) if to_block_value is not None else None,
     )
     return resolve_implementation_from_config(phase, fee_aggregator_phase_yaml)
 

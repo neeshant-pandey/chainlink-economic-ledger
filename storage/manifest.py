@@ -62,11 +62,11 @@ class Manifest:
         """
         body = json.dumps(self._payload.__dict__, indent=2)
         if target.startswith("gs://"):
-            from google.cloud import storage  # type: ignore[import-untyped]
+            from google.cloud.storage import Client  # type: ignore[import-untyped]
 
             without_scheme = target[len("gs://") :]
             bucket_name, _, object_name = without_scheme.partition("/")
-            client = storage.Client()
+            client = Client()
             bucket = client.bucket(bucket_name)
             blob = bucket.blob(object_name)
             blob.upload_from_string(body, content_type="application/json")
@@ -78,11 +78,11 @@ class Manifest:
     @classmethod
     def load(cls, target: str) -> Self:
         if target.startswith("gs://"):
-            from google.cloud import storage
+            from google.cloud.storage import Client
 
             without_scheme = target[len("gs://") :]
             bucket_name, _, object_name = without_scheme.partition("/")
-            client = storage.Client()
+            client = Client()
             bucket = client.bucket(bucket_name)
             data = bucket.blob(object_name).download_as_text()
         else:

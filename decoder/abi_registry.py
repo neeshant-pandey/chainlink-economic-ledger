@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any, Self, cast
 
 import yaml
-from eth_utils import keccak
+from eth_utils.crypto import keccak
 
 from decoder.types import Abi, Phase
 
@@ -36,7 +36,7 @@ def _canonical_type(input_def: dict[str, Any]) -> str:
 
     Plain types (uint256, address, bytes32, ...) are returned as-is.
     """
-    t = input_def["type"]
+    t = str(input_def["type"])
     if t.startswith("tuple"):
         components = input_def.get("components", [])
         inner = ",".join(_canonical_type(c) for c in components)

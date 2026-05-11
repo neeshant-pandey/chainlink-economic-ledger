@@ -24,9 +24,7 @@ def _validate_canonical(signature: str) -> None:
             "(canonical form: 'Transfer(address,address,uint256)')"
         )
     if "indexed" in signature:
-        raise ValueError(
-            f"non-canonical signature {signature!r}: drop the 'indexed' keyword"
-        )
+        raise ValueError(f"non-canonical signature {signature!r}: drop the 'indexed' keyword")
     if "(" not in signature or not signature.endswith(")"):
         raise ValueError(f"non-canonical signature {signature!r}: expected EventName(types)")
 

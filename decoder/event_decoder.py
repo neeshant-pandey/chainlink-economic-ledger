@@ -23,7 +23,7 @@ from __future__ import annotations
 import hashlib
 from typing import Any
 
-from eth_abi import decode as abi_decode
+from eth_abi.abi import decode as abi_decode
 
 from decoder.abi_registry import AbiRegistry
 from decoder.types import Abi, DecodedEvent, DecodeResult, RawLog
@@ -136,8 +136,8 @@ def decode_log(log: RawLog, abi: Abi) -> DecodeResult:
         topic_consumed = 0  # anonymous events use ALL topics for indexed args
     else:
         topic0 = log.topics[0]
-        event_entry = _find_event_abi(abi, topic0)
-        if event_entry is None:
+        found_event_entry = _find_event_abi(abi, topic0)
+        if found_event_entry is None:
             return DecodeResult(
                 raw_id=raw_id,
                 success=False,
@@ -145,6 +145,7 @@ def decode_log(log: RawLog, abi: Abi) -> DecodeResult:
                 failure_reason="unknown_topic",
                 failure_detail=f"topic0={topic0} not in ABI",
             )
+        event_entry = found_event_entry
         topic_consumed = 1  # topic[0] is the signature
 
     inputs: list[dict[str, Any]] = list(event_entry.get("inputs", []))

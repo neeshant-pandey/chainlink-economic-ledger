@@ -131,7 +131,7 @@ def derive_eip1967_slot(label: str) -> str:
     for symbolic checks; production callers use the constants above.
     """
     # Use eth_utils.keccak for correctness — keccak256, not SHA-3-256.
-    from eth_utils import keccak  # local import to keep module light
+    from eth_utils.crypto import keccak  # local import to keep module light
 
     h = int(keccak(text=label).hex(), 16) - 1
     # Mask to 32 bytes
@@ -162,4 +162,4 @@ __all__ = [
 
 # Suppress unused-import warning for hashlib (kept for API stability and future
 # non-keccak hashes if the spec ever broadens).
-_ = hashlib  # type: ignore[has-type]
+_ = hashlib
