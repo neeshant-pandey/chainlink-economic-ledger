@@ -1,21 +1,21 @@
 # Chainlink Economic Ledger
 
-> A production-shaped data engineering demo that reconstructs Chainlink LINK economics from raw Ethereum artifacts: event logs, calldata, traces, contract ABIs, and deterministic replay IDs.
+> A reproducible data engineering project that reconstructs Chainlink LINK economics from raw Ethereum artifacts: event logs, calldata, traces, contract ABIs, and deterministic replay IDs.
 
 [![Python tests](https://img.shields.io/badge/python_tests-293_passed-3fb950?style=flat-square)](#verification)
 [![dbt local](https://img.shields.io/badge/dbt_local-29_models_·_73_tests_passed-d2a8ff?style=flat-square)](#verification)
-[![Local replay](https://img.shields.io/badge/local_demo-end_to_end_DuckDB-58a6ff?style=flat-square)](#3-minute-reviewer-path)
+[![Local replay](https://img.shields.io/badge/local_replay-end_to_end_DuckDB-58a6ff?style=flat-square)](#quickstart)
 [![License](https://img.shields.io/badge/license-MIT-eeeeee?style=flat-square)](LICENSE)
 
 **Live architecture page:** https://neeshant-pandey.github.io/chainlink-economic-ledger/architecture.html
 
 ---
 
-## Why this exists
+## Overview
 
-The hiring-manager signal I optimized for was: **“beyond basic RPC-based blockchain querying.”**
+Chainlink economics data is not just a list of token transfers. Useful analysis requires reconstructing protocol actions from raw EVM artifacts, matching those actions to observable LINK movement, and publishing stable marts that can survive replay, reorgs, and contract changes.
 
-This repo is not a Dune query, not a thin `eth_getLogs` wrapper, and not a dashboard-only project. It shows the data engineering work needed to turn raw on-chain history into durable economic tables:
+This project turns raw on-chain history into durable economic tables using:
 
 - ABI-driven decoding from raw EVM log topics/data.
 - Internal trace walking with reverted-call filtering.
@@ -24,13 +24,13 @@ This repo is not a Dune query, not a thin `eth_getLogs` wrapper, and not a dashb
 - Double-entry LINK ledger entries with dbt invariants.
 - Replay-safe deterministic IDs across Python and dbt layers.
 
-The result is a small but defensible Chainlink economics pipeline: **raw Ethereum artifacts → decoded protocol facts → reconciled LINK movements → marts for economics analysis.**
+The result is a reproducible Chainlink economics pipeline: **raw Ethereum artifacts → decoded protocol facts → reconciled LINK movements → marts for economics analysis.**
 
 ---
 
-## What is proven locally
+## Proven local outputs
 
-Two real Ethereum mainnet transactions are decoded and reconciled end-to-end in the local test/demo path.
+Two real Ethereum mainnet transactions are decoded and reconciled end-to-end in the local execution path.
 
 | Protocol surface | Real tx | Block | Economic movement |
 |---|---:|---:|---:|
@@ -45,11 +45,11 @@ Local verification currently covers:
 | dbt models built locally | 29 |
 | dbt data tests | 73 passed |
 | Fixture-to-DuckDB end-to-end build | passes |
-| No-cloud reviewer script | passes |
+| No-cloud reproduction script | passes |
 
 ---
 
-## 3-minute reviewer path
+## Quickstart
 
 ```bash
 uv sync --all-extras
@@ -57,7 +57,7 @@ uv sync --all-extras
 make dbt-build-local
 ```
 
-No cloud credentials are required for the fixture path. It uses cached real mainnet artifacts, decodes them, seeds DuckDB, builds marts, and runs dbt tests.
+No cloud credentials are required for this path. It uses cached real mainnet artifacts, decodes them, seeds DuckDB, builds marts, and runs dbt tests.
 
 Expected headline output:
 
@@ -71,14 +71,14 @@ main_analytics.weekly_reserve_accumulation 1 rows
 
 ---
 
-## The four moves past “Dune analyst”
+## Core technical capabilities
 
-| Move | What the repo demonstrates | Why it matters |
+| Capability | What the project does | Why it matters |
 |---|---|---|
-| **1. Wire-level decoding** | `eth_abi.decode` on event `topics[1:]` and `data`; calldata selector decoding; no contract wrapper dependency | Historical logs can be decoded directly from warehouse/RPC artifacts |
-| **2. Trace reconstruction** | Flat BigQuery-style trace rows become a nested call tree; movements only count when the call, ancestors, and tx succeeded | Avoids counting reverted internal transfers as economic truth |
-| **3. Proxy probing** | EIP-1967 implementation/admin/beacon slots are checked via storage words | Handles upgradeable-contract reality instead of assuming ABI/address stability |
-| **4. Economic reconciliation** | `EconomicAction` maps to 0, 1, or many `TokenMovement` edges with explicit `status × method` | Ambiguity is surfaced for operators instead of hidden behind a nullable transfer |
+| **Wire-level decoding** | `eth_abi.decode` on event `topics[1:]` and `data`; calldata selector decoding; no contract wrapper dependency | Historical logs can be decoded directly from warehouse/RPC artifacts |
+| **Trace reconstruction** | Flat BigQuery-style trace rows become a nested call tree; movements only count when the call, ancestors, and tx succeeded | Avoids counting reverted internal transfers as economic truth |
+| **Proxy probing** | EIP-1967 implementation/admin/beacon slots are checked via storage words | Handles upgradeable-contract reality instead of assuming ABI/address stability |
+| **Economic reconciliation** | `EconomicAction` maps to 0, 1, or many `TokenMovement` edges with explicit `status × method` | Ambiguity is surfaced for operators instead of hidden behind a nullable transfer |
 
 ---
 
@@ -117,7 +117,7 @@ flowchart TD
     ANA[analytics: PA reserves\nAPY proxy\nfee attribution]
   end
 
-  subgraph OPS[Production-shaped rails]
+  subgraph OPS[Operational rails]
     AIR[Airflow DAGs]
     GCS[GCS parquet layout]
     BQLOAD[BigQuery loader]
@@ -210,7 +210,7 @@ Every durable entity uses `sha256(canonical_key)` IDs. Replays produce the same 
 | Protocol semantics | [`protocols/`](protocols/) | Staking v0.2 and Payment Abstraction action mapping |
 | Reconciliation | [`reconciliation/`](reconciliation/) | Movements, action matching, balance checks |
 | dbt | [`dbt/`](dbt/) | Raw/staging/intermediate/marts/analytics SQL + tests |
-| Local demo runner | [`scripts/seed_to_local.py`](scripts/seed_to_local.py) | Converts real fixtures into dbt seeds |
+| Local fixture runner | [`scripts/seed_to_local.py`](scripts/seed_to_local.py) | Converts real mainnet fixtures into dbt seeds |
 | Orchestration | [`airflow/`](airflow/) | Production DAG shape |
 | Cross-warehouse parity | [`databricks/`](databricks/) | Delta vs warehouse row/hash parity check |
 | Infrastructure | [`terraform/`](terraform/) | GCS, BigQuery, and service-account resource definitions |
@@ -218,7 +218,7 @@ Every durable entity uses `sha256(canonical_key)` IDs. Replays produce the same 
 
 ---
 
-## Why it reads like production data engineering
+## Production data engineering signals
 
 | Capability | Where it shows up |
 |---|---|
@@ -228,7 +228,7 @@ Every durable entity uses `sha256(canonical_key)` IDs. Replays produce the same 
 | Reorg/finality awareness | `ingestion/finality.py`, `ingestion/reorg_handler.py`, and canonical/shadow dbt models |
 | Data quality gates | 73 dbt tests, double-entry balance checks, unknown-signature thresholds |
 | Orchestration shape | Airflow DAGs for backfill, incremental processing, and reconciliation checks |
-| Warehouse portability | Local DuckDB demo plus BigQuery-oriented dbt profiles and SQL macros |
+| Warehouse portability | Local DuckDB execution plus BigQuery-oriented dbt profiles and SQL macros |
 | Cross-warehouse parity | Databricks notebook checks row-count and hash parity for marts |
 | Infrastructure-as-code | Terraform modules for GCS, BigQuery, and service accounts |
 
@@ -252,7 +252,7 @@ Every durable entity uses `sha256(canonical_key)` IDs. Replays produce the same 
 
 ## Verification
 
-Commands I use as the no-cloud reviewer path:
+No-cloud verification commands:
 
 ```bash
 uv run pytest tests/unit -q
@@ -272,12 +272,11 @@ fixture-only repro PASSED
 
 ---
 
-## More documentation
+## Documentation
 
 - [`docs/architecture.md`](docs/architecture.md) — architecture and data-flow decisions.
 - [`docs/data-model.md`](docs/data-model.md) — mart contracts and reconciliation semantics.
 - [`docs/reproduction.md`](docs/reproduction.md) — local and cloud-oriented reproduction paths.
-- [`docs/ai-assisted-development/`](docs/ai-assisted-development/) — build notes and development traceability.
 
 ---
 
