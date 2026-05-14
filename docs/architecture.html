@@ -520,6 +520,153 @@ flowchart LR
   </section>
 
   <section>
+    <h2>Data quality</h2>
+    <p class="lead">
+      Reconciling raw chain artifacts against economic claims only works if every layer fails loudly. Quality is categorized by what each test class catches — schema shape, source liveness, accounting invariants, and cross-warehouse drift.
+    </p>
+    <div class="grid-callouts">
+      <div class="card accent">
+        <div class="label">Layer 1 · Schema tests</div>
+        <h3>dbt generic tests</h3>
+        <p>
+          <code>not_null</code>, <code>unique</code>, <code>accepted_values</code>,
+          and <code>relationships</code> enforce fact → dim referential integrity.
+          <code>event_id</code>, <code>action_id</code>, and <code>ledger_entry_id</code>
+          are guaranteed unique and non-null because each is a deterministic
+          <code>sha256(canonical_key)</code> hash.
+        </p>
+      </div>
+      <div class="card success">
+        <div class="label">Layer 2 · Freshness</div>
+        <h3>Source freshness on chain partitions</h3>
+        <p>
+          dbt source freshness on raw chain partitions with
+          <code>warn_after: 1 hour</code> and <code>error_after: 6 hours</code>.
+          Reorg-aware: freshness is measured from finalized block time, not wall
+          clock, so a quiet RPC doesn't masquerade as stale data.
+        </p>
+      </div>
+      <div class="card purple">
+        <div class="label">Layer 3 · Invariants</div>
+        <h3>Singular tests with economic meaning</h3>
+        <p>
+          <code>assert_ledger_balanced_per_tx.sql</code> enforces debits == credits
+          per tx. Other gates: unknown-signature ratio threshold, reconciliation
+          pass-rate floor, per-tx LINK conservation, and monotonic block height
+          across partitions.
+        </p>
+      </div>
+      <div class="card warn">
+        <div class="label">Layer 4 · Cross-warehouse parity</div>
+        <h3>Databricks Delta parity</h3>
+        <p>
+          The Databricks parity notebook hashes mart rows and diffs row counts
+          against the BigQuery marts. Catches silent divergence between
+          warehouses — schema drift, late-arriving rows, or a mart that rebuilt
+          on only one side.
+        </p>
+      </div>
+    </div>
+    <p class="lead">
+      <strong>73</strong> dbt data tests <strong>·</strong>
+      <strong>293</strong> Python unit tests <strong>·</strong>
+      invariant gates <strong>·</strong> cross-warehouse parity check —
+      the full quality envelope from wire-level decode to consumer mart.
+    </p>
+  </section>
+
+  <section>
+    <h2>Scalability</h2>
+    <p class="lead">
+      The deliberately small dataset (~500 MB, two real mainnet tx fixtures) exists to demonstrate <strong>structural</strong> complexity. The levers below are how this pipeline grows from the local fixture path to a billion-row production workload without rewriting.
+    </p>
+    <div class="split">
+      <div class="pane local">
+        <h3>Today's scale <span class="pill good">~500 MB · 2 tx fixtures</span></h3>
+        <div class="sub">Local DuckDB end-to-end · 2 fixtures · seconds to rebuild</div>
+        <ul>
+          <li>Two real mainnet txs decoded end-to-end: stake + PA Reserves deposit</li>
+          <li>29 dbt models · 73 data tests · 293 Python unit tests</li>
+          <li>DuckDB locally for parity with BigQuery semantics</li>
+          <li>Volume is tiny on purpose — the point is the decode + reconcile shape</li>
+        </ul>
+      </div>
+      <div class="pane prod">
+        <h3>At production scale <span class="pill warn">billions of logs · multi-chain</span></h3>
+        <div class="sub">BigQuery + GCS parquet · partitioned + clustered raw layer</div>
+        <ul>
+          <li>Raw chain tables partitioned by <code>DATE(block_timestamp)</code>; clustered by <code>contract_address, tx_hash</code></li>
+          <li>Incremental dbt models: <code>materialized='incremental'</code>, <code>unique_key='event_id'</code>, <code>incremental_strategy='insert_overwrite'</code> on the partition column</li>
+          <li>Bounded backfills: one partition per task; cost capped by partition pruning instead of full scans</li>
+          <li>GCS parquet as the durable raw layer; BigQuery re-materialized cheaply on demand</li>
+          <li>BigQuery slot reservations when steady-state cost exceeds on-demand breakeven (~100 slot-hours sustained)</li>
+          <li>Trace-tree builder is per-tx, embarrassingly parallel — fans out across Airflow workers</li>
+        </ul>
+      </div>
+    </div>
+    <p>
+      The local path proves correctness; the production levers above are designed but not load-tested against billions of rows. The shape is right.
+    </p>
+  </section>
+
+  <section>
+    <h2>Retention</h2>
+    <p class="lead">
+      Raw chain artifacts are forever; warm marts are forever; the layers in
+      between are tiered for cost. Deterministic replay means we never need a
+      stale staging snapshot &mdash; we can always rebuild from raw.
+    </p>
+    <table class="grains">
+      <thead>
+        <tr><th>Layer</th><th>Retention</th><th>Storage class / mechanism</th><th>Why</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>GCS raw parquet</td>
+          <td class="mono">forever</td>
+          <td><code>Standard</code> &rarr; <code>Nearline</code> 30d &rarr; <code>Coldline</code> 90d &rarr; <code>Archive</code> 365d</td>
+          <td>durable source of truth; cheap once cold</td>
+        </tr>
+        <tr>
+          <td>BigQuery raw tables</td>
+          <td class="mono">90-day partition expiration · 7-day time travel</td>
+          <td><code>PARTITION BY DATE(block_timestamp)</code></td>
+          <td>queryable hot tier; rebuildable from GCS</td>
+        </tr>
+        <tr>
+          <td>BigQuery intermediate</td>
+          <td class="mono">30-day partition expiration</td>
+          <td>auto-expire via <code>partition_expiration_days</code></td>
+          <td>derived; always rebuildable from raw</td>
+        </tr>
+        <tr>
+          <td>BigQuery marts (<code>marts.*</code>, <code>analytics.*</code>)</td>
+          <td class="mono">forever</td>
+          <td><code>dbt snapshot</code> monthly for SCD2 history</td>
+          <td>economics-team contract; preserved</td>
+        </tr>
+        <tr>
+          <td>Run lineage (<code>run_partition_id</code>)</td>
+          <td class="mono">forever</td>
+          <td>append-only ledger table; never deleted</td>
+          <td>required for replay debugging and audit trail</td>
+        </tr>
+        <tr>
+          <td>dbt artifacts (<code>manifest.json</code>, <code>run_results.json</code>)</td>
+          <td class="mono">90 days</td>
+          <td>GCS bucket lifecycle</td>
+          <td>diagnostic; not part of the data product</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="lead" style="margin-top: 22px;">
+      Raw and marts are durable; everything in between can be rebuilt from raw
+      via deterministic replay. This bounds storage cost without locking the
+      team out of historical states.
+    </p>
+  </section>
+
+  <section>
     <h2>What runs vs what's scaffolded</h2>
     <p class="lead">
       The local fixture path is fully implemented and runs in ~90 seconds without
